@@ -1,0 +1,139 @@
+
+import Link from "next/link";
+import {
+  FaInstagram,
+  FaTelegramPlane,
+  FaWhatsapp,
+} from "react-icons/fa";
+import {
+  Mail,
+  Phone,
+} from "lucide-react";
+import { Fredoka } from "next/font/google";
+
+const fredoka = Fredoka({
+  subsets: ["latin"],
+  weight: "700",
+  display: "swap",
+});
+
+export default function Footer() {
+  return (
+    <footer className="w-full bg-white px-3 pb-3 pt-8 sm:px-5 sm:pb-5">
+      <div className="mx-auto max-w-[2520px] overflow-hidden rounded-[28px] bg-indigo-500 text-white sm:rounded-[26px]">
+
+        {/* ================= MAIN FOOTER ================= */}
+        <div className="mx-auto grid w-full max-w-[1200px] grid-cols-1 gap-12 px-6 py-14 sm:px-12 md:grid-cols-3 md:gap-16 lg:px-8">
+
+          {/* Brand */}
+          <div>
+            <Link
+              href="/"
+              className={`${fredoka.className} inline-flex items-center text-[#ffffff] text-[32px] font-bold tracking-tight no-underline pr-8`}
+            >
+              ZERDE
+            </Link>
+
+            <p className="mt-5 max-w-sm text-sm leading-[1.8] text-[#E3D9FF]">
+              Қазақ ұлттық қыздар педагогикалық университетінің
+              студенттері жасаған AI негізіндегі ақылды оқу
+              платформасы.
+            </p>
+          </div>
+
+          {/* Platform */}
+          <div>
+            <h3 className="mb-6 text-sm font-bold uppercase tracking-[1px] text-white">
+              Платформа
+            </h3>
+
+            <ul className="space-y-4">
+              {[
+                { label: "Басты бет", href: "/" },
+                { label: "AI репетитор", href: "/testsss" },
+                { label: "Қолдау қызметі", href: "/support" },
+              ].map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="text-sm text-[#E3D9FF] transition-colors hover:text-white"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h3 className="mb-6 text-sm font-bold uppercase tracking-[1px] text-white">
+              Байланыс
+            </h3>
+
+            <div className="space-y-4">
+              <a
+                href="mailto:info@qyzpu.edu.kz"
+                className="flex items-center gap-3 text-sm text-[#E3D9FF] transition-colors hover:text-white"
+              >
+                <Mail className="h-4 w-4 shrink-0" />
+                info@qyzpu.edu.kz
+              </a>
+
+              <a
+                href="tel:+77272370095"
+                className="flex items-center gap-3 text-sm text-[#E3D9FF] transition-colors hover:text-white"
+              >
+                <Phone className="h-4 w-4 shrink-0" />
+                +7 (727) 237-00-95
+              </a>
+
+              {/* Social media */}
+              <div className="flex items-center gap-3 pt-3">
+                <Link
+                  href="https://instagram.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-white transition-all hover:-translate-y-1 hover:bg-white/20"
+                >
+                  <FaInstagram size={18} />
+                </Link>
+
+                <Link
+                  href="https://t.me"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Telegram"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-white transition-all hover:-translate-y-1 hover:bg-white/20"
+                >
+                  <FaTelegramPlane size={18} />
+                </Link>
+
+                <Link
+                  href="https://wa.me/77471401404"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="WhatsApp"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-white transition-all hover:-translate-y-1 hover:bg-white/20"
+                >
+                  <FaWhatsapp size={18} />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ================= BOTTOM ================= */}
+        <div className="mx-6 h-px bg-white/20 sm:mx-12 lg:mx-20" />
+
+        <div className="mx-auto w-full max-w-[1200px] px-6 py-7 sm:px-12 lg:px-8">
+          <p className="text-center text-xs text-[#D6C7F7] md:translate-x-5 md:text-left">
+            © 2026 Zerde Educational Systems. Барлық құқықтар қорғалған.
+          </p>
+        </div>
+
+      </div>
+    </footer>
+  );
+}

@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1794954538585,
+      "tag": "0000_geokenistik_baseline",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794955867418,
+      "tag": "0001_admin_controls",
+      "breakpoints": true
+    }
+  ]
+}
