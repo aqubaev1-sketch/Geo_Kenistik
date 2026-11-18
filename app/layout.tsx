@@ -22,9 +22,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ZERDE App",
+  title: "GeoKenistik",
   description:
-    "ҰБТ-ға дайындық және пәндер бойынша AI көмекшісі",
+    "Математика курстары мен интерактивті геометрияға арналған оқу платформасы",
 };
 
 export default function RootLayout({
@@ -33,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="kk" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

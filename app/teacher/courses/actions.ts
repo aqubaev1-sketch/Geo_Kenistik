@@ -5,9 +5,11 @@ import { and, asc, desc, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { db } from '@/db/drizzle';
-import { courseSections, courses, lessons } from '@/db/schema';
+import { courseSections, courses, lessons, mediaAssets } from '@/db/schema';
 import { requireRole } from '@/lib/authorization';
 import { sanitizeLessonBlocks } from '@/lib/lesson-content';
+import { getCoursePublicationIssues } from '@/lib/course-publication';
+import { deleteMediaAssetIfUnused } from '@/lib/media-cleanup';
 
 function clean(value: FormDataEntryValue | null, max=5000){return String(value??'').trim().slice(0,max)}
 function slugify(value:string){const slug=value.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');return `${slug||'course'}-${randomUUID().slice(0,8)}`}
@@ -35,8 +37,10 @@ export async function createCourse(formData:FormData){
 }
 
 export async function updateCourse(courseId:string,formData:FormData){
-  await assertCourseAccess(courseId); const title=clean(formData.get('title'),160); if(title.length<3)throw new Error('Курс атауын жазыңыз');
-  await db.update(courses).set({title,description:clean(formData.get('description'),1000),updatedAt:new Date()}).where(eq(courses.id,courseId));
+  const {course,session,role}=await assertCourseAccess(courseId); const title=clean(formData.get('title'),160); if(title.length<3)throw new Error('Курс атауын жазыңыз');const coverMediaId=clean(formData.get('coverAssetId'),80)||null;const previousCoverId=course.coverMediaId;
+  if(coverMediaId){const cover=await db.query.mediaAssets.findFirst({where:eq(mediaAssets.id,coverMediaId)});if(!cover||cover.storageProvider!=='cloudinary'||(role!=='admin'&&cover.uploadedBy!==session.user.id))throw new Error('Курс мұқабасын қолдануға рұқсат жоқ');}
+  await db.update(courses).set({title,description:clean(formData.get('description'),1000),coverMediaId,updatedAt:new Date()}).where(eq(courses.id,courseId));
+  if(previousCoverId&&previousCoverId!==coverMediaId)await deleteMediaAssetIfUnused(previousCoverId,session.user.id,role);
   revalidatePath(`/teacher/courses/${courseId}`); revalidatePath('/teacher/courses');
 }
 
@@ -65,15 +69,16 @@ export async function moveLesson(lessonId:string,direction:'up'|'down'){
 }
 
 export async function updateLesson(lessonId:string,formData:FormData){
-  const {courseId}=await lessonContext(lessonId); const title=clean(formData.get('title'),160); if(!title)throw new Error('Сабақ атауын жазыңыз');
+  const {lesson,courseId}=await lessonContext(lessonId);const {session,role}=await assertCourseAccess(courseId); const title=clean(formData.get('title'),160); if(!title)throw new Error('Сабақ атауын жазыңыз');
   let parsed:unknown=[];try{parsed=JSON.parse(clean(formData.get('contentJson'),100000))}catch{throw new Error('Сабақ материалының пішімі қате')};const content=sanitizeLessonBlocks(parsed);const firstVideo=content.find(block=>block.type==='youtube'&&block.url)?.url||null;
   await db.update(lessons).set({title,summary:clean(formData.get('summary'),500),youtubeUrl:firstVideo,content,isPublished:formData.get('isPublished')==='on'}).where(eq(lessons.id,lessonId));
+  const oldIds=new Set(sanitizeLessonBlocks(lesson.content).filter(block=>block.type==='image'&&block.assetId).map(block=>block.assetId!));const newIds=new Set(content.filter(block=>block.type==='image'&&block.assetId).map(block=>block.assetId!));for(const assetId of oldIds)if(!newIds.has(assetId))await deleteMediaAssetIfUnused(assetId,session.user.id,role);
   revalidatePath(`/teacher/courses/${courseId}`); revalidatePath(`/teacher/courses/${courseId}/lessons/${lessonId}`);
 }
 
 export async function setCoursePublication(courseId:string,publish:boolean){
   await assertCourseAccess(courseId);
-  if(publish){const available=await db.select({id:lessons.id}).from(lessons).innerJoin(courseSections,eq(lessons.sectionId,courseSections.id)).where(eq(courseSections.courseId,courseId)).limit(1);if(!available.length)throw new Error('Курсты жариялау үшін кемінде бір сабақ қосыңыз');}
+  if(publish){const issues=await getCoursePublicationIssues(courseId);if(issues.length)throw new Error(`Курсты жариялау мүмкін емес: ${issues.map(item=>item.message).join('; ')}`);}
   await db.update(courses).set({status:publish?'published':'draft',publishedAt:publish?new Date():null,updatedAt:new Date()}).where(eq(courses.id,courseId)); revalidatePath(`/teacher/courses/${courseId}`); revalidatePath('/courses');
 }
 

@@ -38,7 +38,7 @@ export const verification = pgTable('verification', {
 
 export const mediaAssets = pgTable('media_assets', {
   id: text('id').primaryKey().default(sql`gen_random_uuid()`),
-  storageProvider: text('storage_provider', { enum: ['r2', 'youtube', 'external'] }).notNull(),
+  storageProvider: text('storage_provider', { enum: ['r2', 'cloudinary', 'youtube', 'external'] }).notNull(),
   objectKey: text('object_key'), publicUrl: text('public_url').notNull(), fileName: text('file_name'),
   mimeType: text('mime_type'), fileSize: integer('file_size'), uploadedBy: text('uploaded_by').references(() => user.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at').$defaultFn(() => new Date()).notNull(),

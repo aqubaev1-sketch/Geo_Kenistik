@@ -76,8 +76,7 @@ export default function SupportForm({
         </label>
         <select id="topic" name="topic" defaultValue="bug" className={inputCls}>
           <option value="bug">Қате туралы хабарлама</option>
-          <option value="test">Тест / нәтиже мәселесі</option>
-          <option value="ai">AI репетитор</option>
+          <option value="course">Курс немесе сабақ</option>
           <option value="idea">Ұсыныс</option>
           <option value="other">Басқа</option>
         </select>

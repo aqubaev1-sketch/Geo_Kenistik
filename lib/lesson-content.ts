@@ -7,6 +7,8 @@ export type LessonBlock = {
   url?: string;
   alt?: string;
   caption?: string;
+  publicId?: string;
+  assetId?: string;
 };
 
 const blockTypes = new Set<LessonBlockType>(['heading', 'text', 'formula', 'image', 'youtube']);
@@ -38,6 +40,8 @@ export function sanitizeLessonBlocks(value: unknown): LessonBlock[] {
       url: String(raw.url || '').trim().slice(0, 1000),
       alt: String(raw.alt || '').slice(0, 240),
       caption: String(raw.caption || '').slice(0, 500),
+      publicId: String(raw.publicId || '').slice(0, 500),
+      assetId: String(raw.assetId || '').slice(0, 80),
     };
     if (type === 'youtube' && block.url && !getYouTubeId(block.url)) return [];
     if (type === 'image' && block.url && !/^https?:\/\//i.test(block.url)) return [];

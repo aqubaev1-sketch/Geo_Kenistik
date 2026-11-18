@@ -80,7 +80,7 @@ export const config = {
 // }
 
 // export const config = {
-//     matcher: ["/dashboard/:path*", "/profile/:path*", "/testent/:path*", "/ai-chat/:path*"],
+//     matcher: ["/dashboard/:path*", "/profile/:path*"],
 // };
 
 // -----------------------------------------------
@@ -99,5 +99,5 @@ export const config = {
 // }
 
 // export const config = {
-//   matcher: ["/dashboard/:path*", "/profile/:path*", "/testent/:path*", "/ai-chat/:path*"],
+//   matcher: ["/dashboard/:path*", "/profile/:path*"],
 // };

@@ -1,7 +1,7 @@
 export type AssignmentKind = 'single'|'multiple'|'number'|'text'|'formula';
 export type AssignmentOption = {id:string;text:string};
 export type AssignmentPayload = {
-  title:string; kind:AssignmentKind; prompt:{text:string;imageUrl:string;formula:string};
+  title:string; kind:AssignmentKind; prompt:{text:string;imageUrl:string;imagePublicId:string;imageAssetId:string;formula:string};
   options:AssignmentOption[]; correctAnswers:string[]; correctAnswer:string;
   sampleAnswer:string; explanation:string; tolerance:number; maxScore:number;
 };
@@ -17,5 +17,5 @@ export function sanitizeAssignmentPayload(value:unknown):AssignmentPayload{
   const optionIds=new Set(options.map(item=>item.id));
   const correctAnswers=Array.isArray(raw.correctAnswers)?raw.correctAnswers.map(item=>text(item,80)).filter(id=>optionIds.has(id)):[];
   const imageUrl=text(promptRaw.imageUrl,1000);
-  return {title:text(raw.title,160),kind,prompt:{text:text(promptRaw.text,5000),imageUrl:/^https?:\/\//i.test(imageUrl)?imageUrl:'',formula:text(promptRaw.formula,2000)},options,correctAnswers,correctAnswer:text(raw.correctAnswer,1000),sampleAnswer:text(raw.sampleAnswer,5000),explanation:text(raw.explanation,5000),tolerance:Math.max(0,Math.min(1000000,Number(raw.tolerance)||0)),maxScore:Math.max(1,Math.min(100,Math.round(Number(raw.maxScore)||1)))};
+  return {title:text(raw.title,160),kind,prompt:{text:text(promptRaw.text,5000),imageUrl:/^https?:\/\//i.test(imageUrl)?imageUrl:'',imagePublicId:text(promptRaw.imagePublicId,500),imageAssetId:text(promptRaw.imageAssetId,80),formula:text(promptRaw.formula,2000)},options,correctAnswers,correctAnswer:text(raw.correctAnswer,1000),sampleAnswer:text(raw.sampleAnswer,5000),explanation:text(raw.explanation,5000),tolerance:Math.max(0,Math.min(1000000,Number(raw.tolerance)||0)),maxScore:Math.max(1,Math.min(100,Math.round(Number(raw.maxScore)||1)))};
 }

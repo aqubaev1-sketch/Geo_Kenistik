@@ -35,9 +35,8 @@ export default function Footer() {
             </Link>
 
             <p className="mt-5 max-w-sm text-sm leading-[1.8] text-[#E3D9FF]">
-              Қазақ ұлттық қыздар педагогикалық университетінің
-              студенттері жасаған AI негізіндегі ақылды оқу
-              платформасы.
+              Болашақ математика мұғалімдері мен оқушыларға арналған
+              интерактивті геометрия және оқу платформасы.
             </p>
           </div>
 
@@ -50,7 +49,7 @@ export default function Footer() {
             <ul className="space-y-4">
               {[
                 { label: "Басты бет", href: "/" },
-                { label: "AI репетитор", href: "/testsss" },
+                { label: "Курстар", href: "/courses" },
                 { label: "Қолдау қызметі", href: "/support" },
               ].map((item) => (
                 <li key={item.href}>

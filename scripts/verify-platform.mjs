@@ -65,7 +65,7 @@ if(mode==='schema'){
   const page=read('app/teacher/courses/[courseId]/lessons/[lessonId]/page.tsx');
   for(const action of ['createAssignment','updateAssignment','moveAssignment','deleteAssignment']) assert(actions.includes(`function ${action}`),`missing assignment action ${action}`);
   for(const kind of ['single','multiple','number','text','formula']) assert(builder.includes(`'${kind}'`),`missing assignment kind ${kind}`);
-  for(const token of ['imageUrl','correctAnswers','maxScore','СУРЕТ СІЛТЕМЕСІ','Формула']) assert(builder.includes(token),`missing assignment field ${token}`);
+  for(const token of ['imageUrl','correctAnswers','maxScore','UniversalImageUploader','Формула']) assert(builder.includes(token),`missing assignment field ${token}`);
   assert(page.includes('AssignmentBuilder'),'assignment builder is not mounted in lesson editor');
   console.log('assignment builder verification passed');
 }else if(mode==='assignment-player'){
@@ -98,4 +98,103 @@ if(mode==='schema'){
   for(const token of ['latestAttempts','progressPercent','maxScore','completedLessons']) assert(stats.includes(token),`missing statistics calculation ${token}`);
   assert(dashboard.includes('/teacher/statistics'),'teacher dashboard lacks statistics link');
   console.log('results statistics verification passed');
+}else if(mode==='cloudinary-server'){
+  const helper=read('lib/cloudinary.ts');
+  const sign=read('app/api/media/sign/route.ts');
+  const complete=read('app/api/media/complete/route.ts');
+  const remove=read('app/api/media/[id]/route.ts');
+  const cleanup=read('lib/media-cleanup.ts');
+  const schema=read('db/schema.ts');
+  for(const route of [sign,complete,remove]){
+    assert(route.includes('auth.api.getSession'),'media route lacks server session guard');
+    assert(route.includes("['teacher', 'admin']"),'media route lacks teacher/admin role guard');
+  }
+  assert(helper.includes("import 'server-only'"),'Cloudinary helper is not server-only');
+  assert(sign.includes('api_sign_request'),'signed upload is missing');
+  assert(!sign.includes('apiSecret,'),'secret appears in upload response');
+  assert(complete.includes('client.api.resource'),'completed upload is not verified with Cloudinary');
+  assert(complete.includes('db.insert(mediaAssets)'),'verified asset is not persisted');
+  assert(cleanup.includes('client.uploader.destroy'),'Cloudinary deletion is missing');
+  assert(cleanup.includes("asset.uploadedBy!==userId"),'asset ownership guard is missing');
+  assert(cleanup.includes('findMediaAssetReferences'),'referenced media protection is missing');
+  assert(schema.includes("'cloudinary'"),'Cloudinary storage provider is missing');
+  console.log('cloudinary server verification passed');
+}else if(mode==='image-uploader'){
+  const uploader=read('components/media/UniversalImageUploader.tsx');
+  const course=read('components/teacher/CourseDetailsForm.tsx');
+  const lesson=read('components/teacher/LessonBlockEditor.tsx');
+  const assignment=read('components/teacher/AssignmentBuilder.tsx');
+  const actions=read('app/teacher/courses/actions.ts');
+  for(const token of ['type="file"','URL.createObjectURL','XMLHttpRequest','onprogress','role="progressbar"','role="alert"','MAX','/api/media/sign','/api/media/complete','publicId','assetId']) assert(uploader.includes(token.replace('MAX','maxBytes')),`missing uploader capability ${token}`);
+  for(const surface of [course,lesson,assignment]) assert(surface.includes('UniversalImageUploader'),'uploader is not connected to every editor');
+  assert(assignment.includes('setValue(current=>({...current,prompt:{...current.prompt,...patch}}))'),'async image completion can overwrite newer assignment prompt text');
+  assert(actions.includes("formData.get('coverAssetId')"),'course cover asset is not persisted');
+  assert(actions.includes("cover.storageProvider!=='cloudinary'"),'course cover is not verified server-side');
+  const lessonContent=read('lib/lesson-content.ts');const assignmentContent=read('lib/assignment-content.ts');
+  for(const source of [lessonContent,assignmentContent]){assert(/publicId|PublicId/.test(source),'public_id metadata is not persisted');assert(/assetId|AssetId/.test(source),'Neon asset id is not persisted')}
+  console.log('universal image uploader verification passed');
+}else if(mode==='course-covers'){
+  const cover=read('components/courses/CourseCover.tsx');
+  const catalog=read('app/courses/page.tsx');
+  const detail=read('app/courses/[slug]/page.tsx');
+  const teacher=read('app/teacher/courses/page.tsx');
+  const profile=read('app/profile/page.tsx');
+  const uploader=read('components/media/UniversalImageUploader.tsx');
+  assert(cover.includes("url?<img"),'course cover image renderer is missing');
+  for(const surface of [catalog,teacher,profile]){assert(surface.includes('mediaAssets'),'cover metadata is not queried');assert(surface.includes('CourseCover'),'course cover is not rendered')}
+  assert(detail.includes('mediaAssets'),'course detail cover metadata is not queried');
+  assert(detail.includes('cover.publicUrl'),'course detail hero does not render its cover');
+  assert(uploader.includes('window.confirm'),'image removal lacks confirmation');
+  assert(uploader.includes('Өзгерісті сақтау қажет болады'),'removal confirmation does not explain persistence');
+  console.log('course cover verification passed');
+}else if(mode==='course-publication'){
+  const validator=read('lib/course-publication.ts');
+  const actions=read('app/teacher/courses/actions.ts');
+  const page=read('app/teacher/courses/[courseId]/page.tsx');
+  const readiness=read('components/teacher/PublicationReadiness.tsx');
+  for(const code of ["code:'title'","code:'cover'","code:'lesson'","code:'assignment'"]) assert(validator.includes(code),`missing publication rule ${code}`);
+  for(const token of ['course.title.trim().length','course.coverMediaId','lessons.isPublished','settings.correctAnswers','settings.correctAnswer','row.maxScore']) assert(validator.includes(token),`missing validation token ${token}`);
+  assert(actions.includes('getCoursePublicationIssues(courseId)'),'server publication action does not enforce validator');
+  assert(actions.includes('if(issues.length)throw new Error'),'invalid course is not blocked server-side');
+  assert(page.includes('disabled={course.status!==\'published\'&&!canPublish}'),'publish button is not disabled for invalid drafts');
+  for(const label of ['Курсты жариялау үшін түзетіңіз','мәселе табылды','Курс жариялауға дайын']) assert(readiness.includes(label),`missing publication feedback ${label}`);
+  console.log('course publication verification passed');
+}else if(mode==='teacher-profile'){
+  const profile=read('app/profile/page.tsx');
+  for(const table of ['courses','mediaAssets','enrollments','submissions']) assert(profile.includes(table),`teacher profile does not query ${table}`);
+  for(const calculation of ['new Set(enrolled.map','Math.round(enrolled.reduce','pendingRows.filter','courseRows.filter']) assert(profile.includes(calculation),`teacher profile calculation missing ${calculation}`);
+  for(const label of ['Менің курстарым','Жарияланған курс','Орташа прогресс','Тексеруді күтеді','Редакторды ашу','Курсты көру']) assert(profile.includes(label),`teacher profile surface missing ${label}`);
+  assert(profile.includes('CourseCover'),'teacher course cards lack covers');
+  assert(profile.includes("course.status==='published'&&<Link"),'public view action is not limited to published courses');
+  assert(profile.includes('tabular-nums'),'teacher metrics lack stable numeric typography');
+  console.log('teacher profile verification passed');
+}else if(mode==='safe-image-deletion'){
+  const cleanup=read('lib/media-cleanup.ts');
+  const courseActions=read('app/teacher/courses/actions.ts');
+  const assignmentActions=read('app/teacher/courses/assignment-actions.ts');
+  const route=read('app/api/media/[id]/route.ts');
+  const uploader=read('components/media/UniversalImageUploader.tsx');
+  for(const table of ['courses.coverMediaId','lessons.content','assignments.prompt']) assert(cleanup.includes(table),`reference scan missing ${table}`);
+  for(const key of ['assetId','publicId','imageAssetId','imagePublicId']) assert(cleanup.includes(key),`reference key missing ${key}`);
+  assert(cleanup.indexOf('findMediaAssetReferences')<cleanup.indexOf('client.uploader.destroy'),'Cloudinary deletion runs before reference scan');
+  assert(cleanup.includes("if(references.length)return{status:'in_use'"),'referenced asset is not protected');
+  assert(route.includes("result.status==='in_use'"),'API does not report referenced asset conflict');
+  assert(courseActions.includes('previousCoverId!==coverMediaId'),'course replacement/removal is not detected');
+  assert(courseActions.includes('oldIds')&&courseActions.includes('newIds'),'lesson image removal is not detected');
+  assert(assignmentActions.includes('previous.prompt.imageAssetId!==data.prompt.imageAssetId'),'assignment image removal is not detected');
+  for(const source of [courseActions,assignmentActions])assert(source.includes('deleteMediaAssetIfUnused'),'detached asset cleanup is missing');
+  assert(uploader.includes('window.confirm'),'removal confirmation is missing');
+  console.log('safe image deletion verification passed');
+}else if(mode==='legacy-cleanup'){
+  assert(!fs.existsSync('app/testent/page.tsx'),'legacy /testent route still exists');
+  assert(!fs.existsSync('app/testsss/page.tsx'),'legacy /testsss route still exists');
+  const roots=['app','components','lib','proxy.ts'];
+  const files=[];const collect=(entry)=>{const stat=fs.statSync(entry);if(stat.isDirectory())for(const name of fs.readdirSync(entry))collect(path.join(entry,name));else if(/\.(ts|tsx)$/.test(entry)||entry==='proxy.ts')files.push(entry)};for(const root of roots)if(fs.existsSync(root))collect(root);
+  const source=files.map(read).join('\n');
+  for(const legacy of ['/testent','/testsss','AI репетитор','AI негізіндегі','AI көмекшісі']) assert(!source.includes(legacy),`legacy reference remains: ${legacy}`);
+  const layout=read('app/layout.tsx');const support=read('app/support/page.tsx');
+  assert(layout.includes('title: "GeoKenistik"'),'platform metadata was not updated');
+  assert(layout.includes('<html lang="kk"'),'document language is not Kazakh');
+  assert(support.includes('Курс немесе сабақ'),'course support FAQ is missing');
+  console.log('legacy route cleanup verification passed');
 }else throw new Error('unknown verification mode');

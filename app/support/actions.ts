@@ -7,8 +7,7 @@ export type SupportState = { ok: boolean; message: string };
 
 const TOPICS: Record<string, string> = {
   bug: 'Қате туралы хабарлама',
-  test: 'Тест / нәтиже мәселесі',
-  ai: 'AI репетитор',
+  course: 'Курс немесе сабақ',
   idea: 'Ұсыныс',
   other: 'Басқа',
 };
