@@ -23,11 +23,16 @@ export const signInUser = async (email: string, password: string) => {
 
 export const signUpUser = async (email: string, password: string, name: string, requestedRole: "student" | "teacher") => {
     try {
+        if (requestedRole !== "student" && requestedRole !== "teacher") {
+            return { success: false, message: "Рөл қате таңдалған" };
+        }
+        const normalizedEmail = email.trim().toLowerCase();
         const result = await auth.api.signUpEmail({
             body: {
-                email,
+                email: normalizedEmail,
                 password,
-                name,
+                name: name.trim(),
+                callbackURL: "/login?verified=1",
             },
         });
 
@@ -39,8 +44,9 @@ export const signUpUser = async (email: string, password: string, name: string, 
         return {
             success: true,
             message: requestedRole === "teacher"
-                ? "Мұғалім өтінімі админге жіберілді"
-                : "Оқушы аккаунты құрылды",
+                ? "Email-ды растағаннан кейін мұғалім өтінімі админге жіберіледі"
+                : "Аккаунт құрылды. Email-ды растаңыз",
+            email: normalizedEmail,
         };
     } catch (error) {
         const e = error as Error;

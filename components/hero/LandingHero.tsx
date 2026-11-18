@@ -19,7 +19,7 @@ export function LandingHero() {
       <section className="relative z-10 mx-auto flex min-h-[760px] max-w-6xl flex-col items-center justify-center px-5 pb-16 pt-32 text-center">
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white/85 px-4 py-2 text-xs font-bold uppercase tracking-[1px] text-indigo-600 shadow-sm backdrop-blur-md">
           <Sparkles className="h-4 w-4" />
-          Платформа әзірленуде
+          10-сынып математикасы
         </div>
 
         <h1 className="max-w-5xl text-[clamp(3rem,7vw,6.5rem)] font-bold leading-[1.02] tracking-[-0.06em] text-slate-900">
@@ -30,9 +30,8 @@ export function LandingHero() {
         </h1>
 
         <p className="mt-7 max-w-3xl text-lg leading-8 text-slate-500 sm:text-xl">
-          Болашақ математика мұғалімдеріне арналған интерактивті
-          оқу-әдістемелік орта. Геометриялық тапсырманы орындаңыз,
-          оқытуды жобалаңыз және нәтижені бағалаңыз.
+          Оқушыларға математиканы зерттеп үйренуге, ал мұғалімдерге
+          курс құрып, оқу нәтижесін бақылауға арналған қазақ тіліндегі платформа.
         </p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">

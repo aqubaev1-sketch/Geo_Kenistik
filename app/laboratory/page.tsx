@@ -1,3 +1,15 @@
-import { Box, Construction } from 'lucide-react';
 import { PageIntro } from '@/components/platform/PageIntro';
-export default function LaboratoryPage(){return <main className="container min-h-screen pb-24 pt-32"><PageIntro eyebrow="Интерактивті тәжірибе" title="Геометриялық зертхана" description="10-сынып геометриясына арналған 3D модельдер мен зерттеу тапсырмалары осы бөлімде орналасады."/><div className="grid min-h-80 place-items-center rounded-[28px] border border-dashed border-indigo-200 bg-indigo-50/60 p-10 text-center"><div><span className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-white text-indigo-600 shadow-sm"><Box className="h-8 w-8"/></span><h2 className="mt-6 text-2xl font-bold">Зертхана әзірленуде</h2><p className="mt-3 text-slate-500">Алғашқы модуль: «Көпжақтар және олардың жазбалары».</p><Construction className="mx-auto mt-6 h-5 w-5 text-indigo-400"/></div></div></main>}
+import { CubeLaboratory } from '@/components/laboratory/CubeLaboratory';
+
+export default function LaboratoryPage() {
+  return (
+    <main className="container min-h-screen pb-24 pt-32">
+      <PageIntro
+        eyebrow="Интерактивті тәжірибе"
+        title="Геометриялық зертхана"
+        description="Модельді қолмен басқарып, кеңістіктегі дене мен оның жазбасы арасындағы байланысты зерттеңіз."
+      />
+      <CubeLaboratory />
+    </main>
+  );
+}

@@ -2,7 +2,7 @@ import katex from 'katex';
 import { Play } from 'lucide-react';
 import { getYouTubeId, sanitizeLessonBlocks, type LessonBlock } from '@/lib/lesson-content';
 
-function Formula({value}:{value:string}){let html='';try{html=katex.renderToString(value,{throwOnError:false,displayMode:true})}catch{}return <div className="min-w-0 max-w-full overflow-hidden rounded-2xl bg-indigo-50 px-5 py-7 text-center" dangerouslySetInnerHTML={{__html:html}}/>}
+function Formula({value}:{value:string}){let html='';try{html=katex.renderToString(value,{throwOnError:false,displayMode:true})}catch{}return <div className="min-w-0 max-w-full overflow-x-auto overflow-y-hidden rounded-2xl bg-indigo-50 px-4 py-7 text-center sm:px-5" dangerouslySetInnerHTML={{__html:html}}/>}
 
 function ContentBlock({block}:{block:LessonBlock}){
   if(block.type === 'heading')return <h2 className="break-words [overflow-wrap:anywhere] text-2xl font-bold tracking-[-.025em] text-slate-900 sm:text-3xl">{block.text}</h2>;

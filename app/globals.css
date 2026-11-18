@@ -51,6 +51,42 @@
   white-space: nowrap;
 }
 
+/* Keep unbounded course content inside its own container. */
+main p,
+main li,
+main h1,
+main h2,
+main h3,
+main td,
+main th {
+  overflow-wrap: anywhere;
+}
+
+main pre,
+main code {
+  max-width: 100%;
+}
+
+main pre {
+  overflow-x: auto;
+}
+
+img,
+video,
+canvas,
+iframe {
+  max-width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 .dark {
   --background: oklch(0.147 0.004 49.25);
   --foreground: oklch(0.985 0.001 106.423);

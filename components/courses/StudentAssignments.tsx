@@ -5,7 +5,7 @@ import { submitAssignment } from '@/app/courses/actions';
 type Task={id:string;title:string;type:string;prompt:unknown;settings:unknown;maxScore:number;position:number};
 type Attempt={assignmentId:string;status:string;score:number|null;feedback:string|null;answer:unknown;submittedAt:Date};
 
-function Formula({value}:{value:string}){let html='';try{html=katex.renderToString(value,{throwOnError:false,displayMode:true})}catch{}return <div className="min-w-0 max-w-full overflow-hidden rounded-xl bg-indigo-50 px-4 py-5 text-center" dangerouslySetInnerHTML={{__html:html}}/>}
+function Formula({value}:{value:string}){let html='';try{html=katex.renderToString(value,{throwOnError:false,displayMode:true})}catch{}return <div className="min-w-0 max-w-full overflow-x-auto overflow-y-hidden rounded-xl bg-indigo-50 px-4 py-5 text-center" dangerouslySetInnerHTML={{__html:html}}/>}
 
 export function StudentAssignments({courseId,slug,lessonId,tasks,attempts}:{courseId:string;slug:string;lessonId:string;tasks:Task[];attempts:Attempt[]}){
   if(!tasks.length)return null;

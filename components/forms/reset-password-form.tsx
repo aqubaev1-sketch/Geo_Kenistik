@@ -46,6 +46,10 @@ export function ResetPasswordForm({
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  if (!token) {
+    return <div className={`w-full max-w-md rounded-2xl border border-rose-100 bg-rose-50 p-6 text-center ${className ?? ""}`}><h1 className="text-xl font-bold text-rose-900">Сілтеме жарамсыз</h1><p className="mt-2 text-sm leading-6 text-rose-700">Құпиясөзді қалпына келтіру сілтемесін қайта сұраңыз.</p><Link href="/forgot-password" className="mt-5 inline-flex rounded-xl bg-rose-600 px-4 py-2 text-sm font-bold text-white">Жаңа сілтеме алу</Link></div>;
+  }
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {

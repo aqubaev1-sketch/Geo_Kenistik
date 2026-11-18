@@ -18,7 +18,7 @@ function freshBlock(type: LessonBlockType): LessonBlock {
 
 function FormulaPreview({value}:{value:string}) {
   const html=useMemo(()=>{try{return katex.renderToString(value||'a^2+b^2=c^2',{throwOnError:false,displayMode:true})}catch{return ''}},[value]);
-  return <div className="min-w-0 max-w-full overflow-hidden rounded-xl bg-indigo-50 px-4 py-5 text-center" dangerouslySetInnerHTML={{__html:html}}/>;
+  return <div className="min-w-0 max-w-full overflow-x-auto overflow-y-hidden rounded-xl bg-indigo-50 px-4 py-5 text-center" dangerouslySetInnerHTML={{__html:html}}/>;
 }
 
 function BlockPreview({block}:{block:LessonBlock}) {

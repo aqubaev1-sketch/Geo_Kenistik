@@ -1,0 +1,16 @@
+CREATE INDEX IF NOT EXISTS "session_user_id_idx" ON "session" ("user_id");
+CREATE INDEX IF NOT EXISTS "session_expires_at_idx" ON "session" ("expires_at");
+CREATE INDEX IF NOT EXISTS "account_user_provider_idx" ON "account" ("user_id", "provider_id");
+CREATE INDEX IF NOT EXISTS "verification_identifier_idx" ON "verification" ("identifier");
+CREATE INDEX IF NOT EXISTS "media_assets_provider_key_idx" ON "media_assets" ("storage_provider", "object_key");
+CREATE INDEX IF NOT EXISTS "media_assets_uploaded_by_idx" ON "media_assets" ("uploaded_by");
+CREATE INDEX IF NOT EXISTS "courses_status_published_idx" ON "courses" ("status", "published_at" DESC);
+CREATE INDEX IF NOT EXISTS "courses_teacher_updated_idx" ON "courses" ("teacher_id", "updated_at" DESC);
+CREATE INDEX IF NOT EXISTS "course_sections_course_position_idx" ON "course_sections" ("course_id", "position");
+CREATE INDEX IF NOT EXISTS "lessons_section_published_position_idx" ON "lessons" ("section_id", "is_published", "position");
+CREATE INDEX IF NOT EXISTS "assignments_lesson_position_idx" ON "assignments" ("lesson_id", "position");
+CREATE INDEX IF NOT EXISTS "enrollments_student_active_idx" ON "enrollments" ("student_id", "last_active_at" DESC);
+CREATE INDEX IF NOT EXISTS "lesson_progress_student_status_idx" ON "lesson_progress" ("student_id", "status");
+CREATE INDEX IF NOT EXISTS "submissions_assignment_student_time_idx" ON "submissions" ("assignment_id", "student_id", "submitted_at" DESC);
+CREATE INDEX IF NOT EXISTS "submissions_status_time_idx" ON "submissions" ("status", "submitted_at" DESC);
+CREATE INDEX IF NOT EXISTS "submissions_student_time_idx" ON "submissions" ("student_id", "submitted_at" DESC);

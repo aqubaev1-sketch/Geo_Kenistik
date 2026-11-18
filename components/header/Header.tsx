@@ -3,7 +3,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import { Fredoka } from "next/font/google";
 
@@ -15,8 +14,6 @@ const fredoka = Fredoka({
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const router = useRouter();
-
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user ?? null;
   const loading = isPending;
@@ -37,8 +34,7 @@ export default function Header() {
   const handleLogout = async () => {
     closeMenu();
     await authClient.signOut();
-    router.push('/');
-    router.refresh();
+    window.location.assign('/');
   };
 
   const navLinkClass =
@@ -48,14 +44,14 @@ export default function Header() {
 
   return (
     <>
-      <header className="fixed top-5 left-1/2 -translate-x-1/2 w-[calc(100%-20px)] max-w-[1240px] pl-6 pr-1.5 h-[62px] rounded-[20px] z-50 flex items-center bg-white/20 backdrop-blur-md border border-[#C7B8FF]/60 shadow-[0_4px_30px_rgba(124,58,237,0.12)] transition-all duration-300">
+      <header className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 w-[calc(100%-20px)] max-w-[1240px] pl-4 sm:pl-6 pr-1.5 min-h-[62px] rounded-[20px] z-50 flex items-center bg-white/80 backdrop-blur-md border border-[#C7B8FF]/60 shadow-[0_4px_30px_rgba(124,58,237,0.12)] transition-all duration-300">
         <div className="w-full h-full">
           <nav className="grid grid-cols-[auto_1fr_auto] items-center h-full uppercase">
 
             {/* 1. Логотип */}
             <Link
               href="/"
-              className={`${fredoka.className} inline-flex items-center text-[#4f46e5] text-[32px] font-bold tracking-tight no-underline pr-8`}
+              className={`${fredoka.className} inline-flex min-w-0 items-center text-[#4f46e5] text-[clamp(1.25rem,1rem+2vw,2rem)] font-bold tracking-tight no-underline pr-10 md:pr-8`}
             >
               GeoKenistik
             </Link>
@@ -130,7 +126,7 @@ export default function Header() {
               {!loading && (
                 user ? (
                   <div className="flex items-center gap-3 h-full">
-                    <span className="text-[14px] font-bold text-[#1f1f1f] normal-case">
+                    <span className="max-w-40 truncate text-[14px] font-bold text-[#1f1f1f] normal-case" title={user.name || user.email}>
                       {user.name || user.email}
                     </span>
                     <button

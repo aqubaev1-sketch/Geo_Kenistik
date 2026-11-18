@@ -19,7 +19,7 @@ function normalized(row:StoredAssignment):AssignmentPayload{
   const kind=(settings.kind||(row.type==='test'?'single':row.type)) as AssignmentKind;
   return {title:row.title,kind,prompt:{text:String(prompt.text||''),imageUrl:String(prompt.imageUrl||''),imagePublicId:String(prompt.imagePublicId||''),imageAssetId:String(prompt.imageAssetId||''),formula:String(prompt.formula||'')},options:Array.isArray(settings.options)?settings.options as AssignmentOption[]:[],correctAnswers:Array.isArray(settings.correctAnswers)?settings.correctAnswers.map(String):[],correctAnswer:String(settings.correctAnswer||''),sampleAnswer:String(settings.sampleAnswer||''),explanation:String(settings.explanation||''),tolerance:Number(settings.tolerance)||0,maxScore:row.maxScore};
 }
-function FormulaPreview({value}:{value:string}){const html=useMemo(()=>{try{return katex.renderToString(value||'x^2',{throwOnError:false,displayMode:true})}catch{return''}},[value]);return <div className="min-w-0 max-w-full overflow-hidden rounded-xl bg-indigo-50 px-4 py-4" dangerouslySetInnerHTML={{__html:html}}/>}
+function FormulaPreview({value}:{value:string}){const html=useMemo(()=>{try{return katex.renderToString(value||'x^2',{throwOnError:false,displayMode:true})}catch{return''}},[value]);return <div className="min-w-0 max-w-full overflow-x-auto overflow-y-hidden rounded-xl bg-indigo-50 px-4 py-4" dangerouslySetInnerHTML={{__html:html}}/>}
 
 function AssignmentCard({row,index,total,updateAction,moveAction,deleteAction}:{row:StoredAssignment;index:number;total:number;updateAction:Action;moveAction:Action;deleteAction:Action}){
   const [value,setValue]=useState(()=>normalized(row));const change=(patch:Partial<AssignmentPayload>)=>setValue(current=>({...current,...patch}));

@@ -74,6 +74,8 @@ export function SignupForm({
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
+  const [isResending, setIsResending] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -104,6 +106,7 @@ export function SignupForm({
 
       if (response.success) {
         toast.success(response.message);
+        setRegisteredEmail(response.email || values.email.trim().toLowerCase());
       } else {
         toast.error(response.message);
       }
@@ -129,6 +132,10 @@ export function SignupForm({
       setIsGoogleLoading(false);
     }
   };
+
+  if (registeredEmail) {
+    return <div className={`w-full max-w-md rounded-[24px] border border-emerald-100 bg-white p-7 text-center shadow-sm ${className ?? ""}`} {...props}><span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-emerald-50 text-2xl">✓</span><h1 className="mt-5 text-2xl font-bold text-slate-900">Email-ды растаңыз</h1><p className="mt-3 text-sm leading-6 text-slate-600"><b>{registeredEmail}</b> мекенжайына растау сілтемесін жібердік. Сілтемені ашқаннан кейін жүйеге кіре аласыз.</p><button type="button" disabled={isResending} onClick={async()=>{setIsResending(true);const {error}=await authClient.sendVerificationEmail({email:registeredEmail,callbackURL:"/login?verified=1"});setIsResending(false);error?toast.error(error.message):toast.success("Растау хаты қайта жіберілді");}} className="mt-6 min-h-11 w-full rounded-xl border border-indigo-200 px-4 text-sm font-bold text-indigo-700 disabled:opacity-50">{isResending?"Жіберілуде...":"Хатты қайта жіберу"}</button><Link href="/login" className="mt-3 inline-flex text-sm font-bold text-slate-500">Кіру бетіне өту</Link></div>;
+  }
 
   return (
     <div

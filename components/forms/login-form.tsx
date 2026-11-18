@@ -8,7 +8,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +20,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import { signInUser } from "@/server/users";
 import { authClient } from "@/lib/auth-client";
 
 
@@ -69,8 +67,6 @@ export function LoginForm({
   callbackUrl: requestedCallbackUrl,
   ...props
 }: React.ComponentProps<"div"> & { callbackUrl?: string }) {
-  const router = useRouter();
-
   // Возвращаем только на внутренний путь, чтобы исключить перенаправление на чужой сайт.
   const callbackUrl =
     requestedCallbackUrl?.startsWith("/") && !requestedCallbackUrl.startsWith("//")
@@ -109,19 +105,19 @@ export function LoginForm({
     try {
       setIsLoading(true);
 
-      const response = await signInUser(
-        values.email,
-        values.password
-      );
+      const { error } = await authClient.signIn.email({
+        email: values.email.trim().toLowerCase(),
+        password: values.password,
+      });
 
-      if (response.success) {
-        toast.success(response.message);
-        // После входа возвращаем пользователя к тесту, если его туда перенаправил proxy.
-        router.push(callbackUrl);
-        router.refresh();
-      } else {
-        toast.error(response.message);
+      if (error) {
+        toast.error(error.code === "EMAIL_NOT_VERIFIED" ? "Алдымен email мекенжайыңызды растаңыз" : error.message || "Email немесе құпиясөз қате");
+        return;
       }
+
+      toast.success("Жүйеге сәтті кірдіңіз");
+      // Полная навигация гарантирует, что Header заново прочитает сессию и роль.
+      window.location.assign(callbackUrl);
     } catch (error) {
       console.error(error);
       toast.error("Қате орын алды. Қайтадан көріңіз.");
