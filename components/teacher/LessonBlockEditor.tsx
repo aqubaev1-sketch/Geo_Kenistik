@@ -2,9 +2,10 @@
 
 import { useMemo, useState } from 'react';
 import katex from 'katex';
-import { ArrowDown, ArrowUp, Heading2, ImageIcon, ListPlus, Play, Plus, Save, Sigma, Trash2, Type } from 'lucide-react';
+import { ArrowDown, ArrowUp, Heading2, ImageIcon, ListPlus, Play, Plus, Sigma, Trash2, Type } from 'lucide-react';
 import { getYouTubeId, type LessonBlock, type LessonBlockType } from '@/lib/lesson-content';
 import { UniversalImageUploader } from '@/components/media/UniversalImageUploader';
+import { ActionSubmitButton } from '@/components/ui/action-submit-button';
 
 const choices: {type: LessonBlockType; label: string; icon: typeof Type}[] = [
   {type:'heading',label:'Тақырып',icon:Heading2}, {type:'text',label:'Мәтін',icon:Type},
@@ -58,7 +59,7 @@ export function LessonBlockEditor({lesson,action}:{lesson:{title:string;summary:
       <div className="relative"><button type="button" onClick={()=>setAdding(value=>!value)} className="inline-flex h-12 items-center gap-2 rounded-xl border border-indigo-200 bg-white px-5 text-sm font-bold text-indigo-600"><Plus className="h-4 w-4"/>Материал қосу</button>{adding&&<div className="absolute bottom-14 left-0 z-10 grid w-[280px] grid-cols-2 gap-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl">{choices.map(({type,label,icon:Icon})=><button type="button" key={type} onClick={()=>addBlock(type)} className="flex items-center gap-2 rounded-xl px-3 py-3 text-left text-sm font-semibold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600"><Icon className="h-4 w-4"/>{label}</button>)}</div>}</div>
     </section>
     <aside className="min-w-0 h-fit space-y-5 xl:sticky xl:top-28">
-      <div className="rounded-[24px] border border-slate-200 bg-white p-6"><h2 className="text-base font-bold text-slate-900">Жариялау</h2><label className="mt-4 flex items-start gap-3 rounded-xl bg-slate-50 p-4"><input name="isPublished" type="checkbox" defaultChecked={lesson.isPublished} className="mt-1 h-4 w-4 accent-indigo-500"/><span><b className="block text-sm">Сабақ дайын</b><span className="mt-1 block text-xs leading-5 text-slate-500">Оқушыға көрсетуге дайын деп белгілеу</span></span></label><button className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-indigo-500 text-sm font-bold text-white"><Save className="h-4 w-4"/>Өзгерістерді сақтау</button></div>
+      <div className="rounded-[24px] border border-slate-200 bg-white p-6"><h2 className="text-base font-bold text-slate-900">Жариялау</h2><label className="mt-4 flex items-start gap-3 rounded-xl bg-slate-50 p-4"><input name="isPublished" type="checkbox" defaultChecked={lesson.isPublished} className="mt-1 h-4 w-4 accent-indigo-500"/><span><b className="block text-sm">Сабақ дайын</b><span className="mt-1 block text-xs leading-5 text-slate-500">Оқушыға көрсетуге дайын деп белгілеу</span></span></label><ActionSubmitButton label="Өзгерістерді сақтау" className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-indigo-500 text-sm font-bold text-white"/></div>
       <div className="min-w-0 overflow-hidden rounded-[24px] border border-slate-200 bg-white p-6"><p className="text-xs font-bold text-indigo-600">АЛДЫН АЛА ҚАРАУ</p><div className="mt-5 min-w-0 space-y-6">{blocks.map(block=><div key={block.id} className="min-w-0 max-w-full overflow-hidden"><BlockPreview block={block}/></div>)}</div>{blocks.length===0&&<p className="mt-3 text-sm leading-6 text-slate-400">Материал қосылғанда сабақтың көрінісі осында шығады.</p>}</div>
     </aside>
   </form>;
