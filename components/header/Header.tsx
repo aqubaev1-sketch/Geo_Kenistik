@@ -1,172 +1,72 @@
+"use client";
 
-'use client';
-
-import { useState } from 'react';
-import Link from 'next/link';
-import { authClient } from '@/lib/auth-client';
+import { useState } from "react";
+import Link from "next/link";
+import { LogIn, LogOut, Menu, X } from "lucide-react";
 import { Fredoka } from "next/font/google";
+import { authClient } from "@/lib/auth-client";
 
-const fredoka = Fredoka({
-  subsets: ["latin"],
-  weight: "700",
-  display: "swap",
-});
+const fredoka = Fredoka({ subsets: ["latin"], weight: "700", display: "swap" });
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user ?? null;
-  const loading = isPending;
-  const isAdmin = session?.user.role === 'admin';
-  const isTeacher = session?.user.role === 'teacher' || isAdmin;
+  const isAdmin = session?.user.role === "admin";
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
-
   const handleSignIn = async () => {
     closeMenu();
-    await authClient.signIn.social({
-      provider: 'google',
-      callbackURL: '/profile',
-    });
+    await authClient.signIn.social({ provider: "google", callbackURL: "/profile" });
   };
-
   const handleLogout = async () => {
     closeMenu();
     await authClient.signOut();
-    window.location.assign('/');
+    window.location.assign("/");
   };
 
-  const navLinkClass =
-    "block w-full text-center p-4 md:p-0 font-['Inter',sans-serif] text-[14px] font-bold uppercase tracking-[1px] text-[#64748B] hover:text-[#1f1f1f] transition-colors";
-
-  
+  const navClass = "block rounded-xl px-4 py-3 text-center text-sm font-bold text-black transition-colors hover:bg-[#efff75] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#dfff3f]/50 md:px-2 md:py-2";
 
   return (
     <>
-      <header className="fixed top-3 sm:top-5 left-1/2 -translate-x-1/2 w-[calc(100%-20px)] max-w-[1240px] pl-4 sm:pl-6 pr-1.5 min-h-[62px] rounded-[20px] z-50 flex items-center bg-white/80 backdrop-blur-md border border-[#C7B8FF]/60 shadow-[0_4px_30px_rgba(124,58,237,0.12)] transition-all duration-300">
-        <div className="w-full h-full">
-          <nav className="grid grid-cols-[auto_1fr_auto] items-center h-full uppercase">
+      <header className="fixed left-1/2 top-3 z-50 w-[calc(100%-20px)] max-w-[1240px] -translate-x-1/2 sm:top-5">
+        <nav className="relative flex min-h-[70px] items-center justify-between rounded-[24px] border border-white/80 bg-[#fffef8]/95 px-4 shadow-[0_18px_50px_rgba(28,18,72,0.13)] backdrop-blur-xl sm:px-6" aria-label="Негізгі навигация">
+          <Link href="/" onClick={closeMenu} className={`${fredoka.className} relative z-10 text-[clamp(1.35rem,1rem+1vw,1.9rem)] tracking-[-0.04em] text-black`}>
+            Geo<span className="rounded-md bg-[#dfff3f] px-1">Kenistik</span>
+          </Link>
 
-            {/* 1. Логотип */}
-            <Link
-              href="/"
-              className={`${fredoka.className} inline-flex min-w-0 items-center text-[#4f46e5] text-[clamp(1.25rem,1rem+2vw,2rem)] font-bold tracking-tight no-underline pr-10 md:pr-8`}
-            >
-              GeoKenistik
-            </Link>
+          <div className={`${isMenuOpen ? "flex" : "hidden"} absolute inset-inline-0 top-[calc(100%+10px)] flex-col rounded-[24px] border border-white bg-[#fffef8] p-4 shadow-2xl md:inset-inline-auto md:left-1/2 md:top-1/2 md:flex md:-translate-x-1/2 md:-translate-y-1/2 md:flex-row md:items-center md:whitespace-nowrap md:border-0 md:bg-transparent md:p-0 md:shadow-none`}>
+            <Link href="/courses" className={navClass} onClick={closeMenu}>Курстар</Link>
+            <Link href="/laboratory" className={navClass} onClick={closeMenu}>Зертхана</Link>
+            <Link href="/profile" className={navClass} onClick={closeMenu}>Жеке кабинет</Link>
+            {isAdmin ? <Link href="/admin" className={navClass} onClick={closeMenu}>Админ</Link> : null}
 
-            {/* 2. Навигация — доступна всем */}
-            <div
-              className={`
-                absolute top-[calc(100%+14px)] left-0 w-full bg-[#FAF8FF]/95 backdrop-blur-lg rounded-[18px] border border-[#EDE9FE] shadow-xl flex flex-col items-center gap-0 overflow-hidden transition-all duration-300 z-50
-                md:static md:w-auto md:bg-transparent! md:border-none! md:shadow-none! md:backdrop-blur-none md:flex-row md:justify-center md:overflow-visible
-                ${isMenuOpen ? 'max-h-[80vh] opacity-100 visible py-5 md:py-0' : 'max-h-0 opacity-0 invisible md:max-h-none md:opacity-100 md:visible'}
-              `}
-            >
-              <ul className="w-full flex flex-col items-center gap-0 m-0 p-0 list-none md:flex-row md:justify-center md:gap-10">
-
-                <li>
-                  <Link href="/courses" className={navLinkClass} onClick={closeMenu}>
-                    Курстар
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/laboratory" className={navLinkClass} onClick={closeMenu}>
-                    Зертхана
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/profile" className={navLinkClass} onClick={closeMenu}>
-                    Жеке кабинет
-                  </Link>
-                </li>
-
-                {isTeacher && (
-                  <li>
-                    <Link href="/teacher" className={navLinkClass} onClick={closeMenu}>
-                      Мұғалім
-                    </Link>
-                  </li>
-                )}
-
-                {isAdmin && (
-                  <li>
-                    <Link href="/admin" className={navLinkClass} onClick={closeMenu}>
-                      Админ-панель
-                    </Link>
-                  </li>
-                )}
-              </ul>
-
-              {/* Мобильные кнопки */}
-              <div className="flex flex-col items-center gap-[10px] w-full px-6 pt-4 md:hidden">
-                {!loading && (
-                  user ? (
-                    <button
-                      onClick={handleLogout}
-                      className="w-full max-w-[260px] py-3 text-center text-[14px] font-bold uppercase text-white bg-indigo-500 rounded-[18px] hover:opacity-90 transition-opacity font-['Inter',sans-serif]"
-                    >
-                      Шығу
-                    </button>
-                  ) : (
-                    <button
-                      onClick={handleSignIn}
-                      className="w-full max-w-[260px] py-3 text-center text-[14px] font-bold uppercase text-white bg-indigo-500 rounded-[18px] hover:opacity-90 transition-opacity font-['Inter',sans-serif]"
-                    >
-                      Google арқылы тіркелу
-                    </button>
-                  )
-                )}
-              </div>
+            <div className="mt-3 border-t border-black/10 pt-3 md:hidden">
+              {!isPending && (user ? (
+                <button onClick={handleLogout} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#dfff3f] px-5 text-sm font-black text-black"><LogOut className="h-4 w-4" />Шығу</button>
+              ) : (
+                <button onClick={handleSignIn} className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#dfff3f] px-5 text-sm font-black text-black"><LogIn className="h-4 w-4" />Кіру</button>
+              ))}
             </div>
+          </div>
 
-            {/* 3. Правый блок */}
-            <div className="hidden md:flex items-center justify-end gap-2 h-full">
-              {!loading && (
-                user ? (
-                  <div className="flex items-center gap-3 h-full">
-                    <span className="max-w-40 truncate text-[14px] font-bold text-[#1f1f1f] normal-case" title={user.name || user.email}>
-                      {user.name || user.email}
-                    </span>
-                    <button
-                      onClick={handleLogout}
-                      className="inline-flex items-center justify-center px-6 h-[calc(100%-12px)] tracking-[1px] text-[14px] font-bold uppercase bg-indigo-500 text-white rounded-[15px] hover:opacity-90 transition-opacity font-['Inter',sans-serif]"
-                    >
-                      Шығу
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    onClick={handleSignIn}
-                    className="inline-flex items-center justify-center px-6 h-[calc(100%-12px)] tracking-[1px] text-[14px] font-bold uppercase bg-indigo-500 text-white rounded-[15px] hover:opacity-90 transition-opacity font-['Inter',sans-serif]"
-                  >
-                    Кіру
-                  </button>
-                )
-              )}
-            </div>
+          <div className="hidden items-center gap-3 md:flex">
+            {!isPending && (user ? (
+              <>
+                <span className="max-w-36 truncate text-sm font-semibold text-slate-600" title={user.name || user.email}>{user.name || user.email}</span>
+                <button onClick={handleLogout} className="inline-flex min-h-12 items-center gap-2 rounded-2xl bg-[#dfff3f] px-5 text-sm font-black text-black transition hover:bg-[#d4f52f] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#dfff3f]/50"><LogOut className="h-4 w-4" />Шығу</button>
+              </>
+            ) : (
+              <button onClick={handleSignIn} className="inline-flex min-h-12 items-center gap-2 rounded-2xl bg-[#dfff3f] px-6 text-sm font-black text-black transition hover:bg-[#d4f52f] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#dfff3f]/50"><LogIn className="h-4 w-4" />Кіру</button>
+            ))}
+          </div>
 
-            {/* Бургер */}
-            <button
-              className="flex md:hidden flex-col gap-[5px] bg-transparent border-none cursor-pointer p-1 absolute right-5 top-1/2 -translate-y-1/2 z-50"
-              onClick={toggleMenu}
-              aria-label="Открыть меню"
-              aria-expanded={isMenuOpen}
-            >
-              <span className={`w-[25px] h-[2px] bg-[#7C3AED] transition-all duration-300 ${isMenuOpen ? 'translate-y-[7px] rotate-45' : ''}`}></span>
-              <span className={`w-[25px] h-[2px] bg-[#7C3AED] transition-all duration-300 ${isMenuOpen ? 'opacity-0' : ''}`}></span>
-              <span className={`w-[25px] h-[2px] bg-[#7C3AED] transition-all duration-300 ${isMenuOpen ? '-translate-y-[7px] -rotate-45' : ''}`}></span>
-            </button>
-          </nav>
-        </div>
+          <button type="button" onClick={() => setIsMenuOpen((open) => !open)} aria-label={isMenuOpen ? "Мәзірді жабу" : "Мәзірді ашу"} aria-expanded={isMenuOpen} className="relative z-10 grid h-11 w-11 place-items-center rounded-xl bg-black text-white md:hidden">
+            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
+        </nav>
       </header>
-
-      {/* Оверлей */}
-      <div
-        className={`fixed inset-0 bg-[#1E1B4B]/35 transition-opacity duration-300 z-40 md:hidden ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
-        onClick={closeMenu}
-      ></div>
+      {isMenuOpen ? <button type="button" aria-label="Мәзірді жабу" onClick={closeMenu} className="fixed inset-0 z-40 bg-[#20134a]/35 backdrop-blur-sm md:hidden" /> : null}
     </>
   );
 }

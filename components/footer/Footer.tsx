@@ -19,7 +19,7 @@ const fredoka = Fredoka({
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-white px-3 pb-3 pt-8 sm:px-5 sm:pb-5">
+    <footer className="w-full bg-[#f6f0dd] px-3 pb-3 pt-8 sm:px-5 sm:pb-5">
       <div className="mx-auto max-w-[2520px] overflow-hidden rounded-[28px] bg-indigo-500 text-white sm:rounded-[26px]">
 
         {/* ================= MAIN FOOTER ================= */}

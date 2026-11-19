@@ -2,7 +2,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Footer from "@/components/footer/Footer";
+import FooterHome from "@/components/footer_home/Footerhome";
 
 export default function ConditionalFooter() {
   const pathname = usePathname();
@@ -20,5 +20,5 @@ export default function ConditionalFooter() {
 
   if (shouldHide) return null;
 
-  return <Footer />;
+  return <FooterHome showCta={false} />;
 }

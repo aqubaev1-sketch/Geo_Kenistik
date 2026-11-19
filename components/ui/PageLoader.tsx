@@ -1,64 +1,26 @@
-
 export default function PageLoader() {
   return (
-    <div
-      role="status"
-      aria-label="Бет жүктелуде"
-      className="w-full min-h-[65vh] bg-white px-4 pb-12 pt-28 sm:px-6 md:pt-32"
-    >
-      <div className="mx-auto w-full max-w-4xl animate-pulse space-y-5">
-
-        {/* ================= HEADER ================= */}
-        <div className="space-y-3">
-          <div className="h-[18px] w-[55%] max-w-[310px] rounded-[5px] bg-slate-200" />
-
-          <div className="h-[12px] w-[75%] max-w-[420px] rounded-[4px] bg-slate-100" />
+    <main role="status" aria-live="polite" aria-label="Бет жүктелуде" className="min-h-[72vh] bg-[#f6f0dd] px-4 pb-20 pt-28 sm:px-6 md:pt-36">
+      <div className="container"><div className="mx-auto w-full max-w-5xl animate-pulse">
+        <div className="mb-10 space-y-4">
+          <div className="h-4 w-28 rounded-full bg-indigo-100" />
+          <div className="h-10 w-3/4 max-w-xl rounded-xl bg-slate-200 sm:h-12" />
+          <div className="h-4 w-full max-w-2xl rounded-full bg-slate-100" />
+          <div className="h-4 w-2/3 max-w-lg rounded-full bg-slate-100" />
         </div>
-
-        {/* ================= STATS ================= */}
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="rounded-[7px] bg-slate-50 p-2"
-            >
-              <div className="mb-2 h-[8px] w-[70%] rounded bg-slate-200" />
-              <div className="h-[14px] w-[55%] rounded bg-slate-300" />
+        <div className="grid gap-5 md:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="overflow-hidden rounded-[28px] border border-slate-100 bg-white p-4 shadow-sm">
+              <div className="aspect-[16/10] rounded-2xl bg-slate-100" />
+              <div className="mt-5 h-5 w-4/5 rounded bg-slate-200" />
+              <div className="mt-3 h-3 w-full rounded bg-slate-100" />
+              <div className="mt-2 h-3 w-2/3 rounded bg-slate-100" />
+              <div className="mt-6 h-11 rounded-xl bg-indigo-50" />
             </div>
           ))}
         </div>
-
-        {/* ================= PROGRESS ================= */}
-        <div className="space-y-2 px-1">
-          <div className="flex items-center justify-between gap-3">
-            <div className="h-[9px] w-[30%] rounded bg-slate-200" />
-            <div className="h-[9px] w-[15%] rounded bg-indigo-200" />
-          </div>
-
-          <div className="h-[11px] w-[85%] rounded bg-slate-300" />
-          <div className="h-[11px] w-[65%] rounded bg-slate-200" />
-        </div>
-
-        {/* ================= ANSWERS ================= */}
-        <div className="space-y-2">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex h-[44px] items-center gap-3 rounded-[7px] bg-slate-50 px-2"
-            >
-              <div className="h-[22px] w-[22px] shrink-0 rounded-full bg-indigo-100" />
-
-              <div
-                className={`h-[9px] rounded bg-slate-200 ${
-                  i % 2 === 0 ? "w-[75%]" : "w-[55%]"
-                }`}
-              />
-            </div>
-          ))}
-        </div>
-
         <span className="sr-only">Жүктелуде...</span>
-      </div>
-    </div>
+      </div></div>
+    </main>
   );
 }

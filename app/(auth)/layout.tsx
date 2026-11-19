@@ -7,8 +7,8 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-svh w-full justify-center px-6 pb-10 pt-28 md:px-10 md:pt-32">
-      <div className="w-full max-w-sm">
+    <div className="auth-screen flex min-h-svh w-full justify-center px-6 pb-16 pt-28 md:px-10 md:pt-36">
+      <div className="auth-panel w-full max-w-xl">
         {/* Кнопки остаются на одном месте */}
         <AuthTabs />
 

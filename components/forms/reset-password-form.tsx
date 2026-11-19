@@ -88,7 +88,7 @@ export function ResetPasswordForm({
 
   return (
     <div
-      className={`w-full max-w-md ${className ?? ""}`}
+      className={`w-full max-w-none ${className ?? ""}`}
       {...props}
     >
       <div className="w-full">

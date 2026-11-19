@@ -13,6 +13,7 @@ import {
   Phone,
 } from "lucide-react";
 import { Fredoka } from "next/font/google";
+import { Doodle } from "@/components/ui/Doodle";
 
 const fredoka = Fredoka({
   subsets: ["latin"],
@@ -20,31 +21,35 @@ const fredoka = Fredoka({
   display: "swap",
 });
 
-export default function FooterHome() {
+export default function FooterHome({ showCta = true }: { showCta?: boolean }) {
   return (
-    <footer className="w-full bg-white px-3 pb-3 pt-8 sm:px-5 sm:pb-5">
-      <div className="mx-auto max-w-[2520px] overflow-hidden rounded-[28px] bg-indigo-500 text-white sm:rounded-[26px]">
+    <footer className="w-full bg-[#f6f0dd]">
+      <div className="w-full overflow-hidden bg-black text-white">
 
         {/* ================= CTA ================= */}
-        <div className="flex flex-col items-center px-6 pb-16 pt-16 text-center sm:pt-20 lg:pt-24">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold text-purple-100">
+        {showCta ? <div className="relative flex flex-col items-center overflow-hidden px-6 pb-16 pt-16 text-center sm:pt-20 lg:pt-24">
+          <Doodle variant="wave" className="pointer-events-none absolute -left-10 top-10 hidden h-28 w-64 rotate-12 text-white/30 md:block" />
+          <Doodle variant="spark" className="pointer-events-none absolute right-[7%] top-[15%] h-20 w-20 text-[#dfff3f] sm:h-28 sm:w-28" />
+          <Doodle variant="rays" className="pointer-events-none absolute bottom-10 right-[18%] hidden h-16 w-16 text-white/40 sm:block" />
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold text-white/80">
             <GraduationCap className="h-4 w-4" />
             GEOKENISTIK · 10-СЫНЫП МАТЕМАТИКАСЫ
           </div>
 
-          <h2 className="max-w-3xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-[42px]">
+          <h2 className="max-w-4xl text-4xl font-black leading-[.95] tracking-[-.045em] sm:text-5xl lg:text-7xl">
             Математиканы жүйелі түрде меңгеріңіз.
           </h2>
 
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-[#E3D9FF] sm:text-lg">
+          <p className="mt-6 max-w-xl text-base leading-relaxed text-white/65 sm:text-lg">
             Теорияны оқып, бейнесабақты көріп, тапсырмаларды орындаңыз
             және оқу ілгерілеуіңізді бақылаңыз.
           </p>
 
-          <div className="mt-9 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
+          <div className="relative mt-9 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
+            <Doodle variant="arrow" className="pointer-events-none absolute -left-28 top-0 hidden h-14 w-20 rotate-12 text-[#dfff3f] lg:block" />
             <Link
               href="/courses"
-              className="group inline-flex h-[50px] w-full items-center justify-center gap-2 rounded-[12px] bg-white px-6 text-sm font-bold text-[#34205C] transition-all hover:bg-purple-50 sm:w-auto"
+              className="group inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-[#dfff3f] px-6 text-sm font-black text-black transition-all hover:-translate-y-1 sm:w-auto"
             >
               <BookOpen className="h-4 w-4" />
               Курстарды көру
@@ -53,19 +58,19 @@ export default function FooterHome() {
 
             <Link
               href="/laboratory"
-              className="group inline-flex h-[50px] w-full items-center justify-center gap-2 rounded-[12px] border border-white/15 bg-[#8055D7] px-6 text-sm font-bold text-white transition-all hover:bg-[#9067E5] sm:w-auto"
+              className="group inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border border-white/30 bg-white/10 px-6 text-sm font-bold text-white transition-all hover:bg-white/15 sm:w-auto"
             >
               Зертхананы ашу
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
-        </div>
+        </div> : null}
 
         {/* Divider */}
-        <div className="mx-6 h-px bg-white/20 sm:mx-12 lg:mx-20" />
+        {showCta ? <div className="mx-6 h-px bg-white/20 sm:mx-12 lg:mx-20" /> : null}
 
         {/* ================= MAIN FOOTER ================= */}
-        <div className="mx-auto grid w-full max-w-[1200px] grid-cols-1 gap-12 px-6 py-14 sm:px-12 md:grid-cols-3 md:gap-16 lg:px-8">
+        <div className="mx-auto grid w-full max-w-[1600px] grid-cols-1 gap-12 px-6 py-16 sm:px-12 md:grid-cols-[1.05fr_.8fr_1fr] md:gap-20 lg:px-16 xl:gap-28 xl:px-20">
 
           {/* Brand */}
           <div>
@@ -166,10 +171,10 @@ export default function FooterHome() {
         </div>
 
         {/* ================= BOTTOM ================= */}
-        <div className="mx-6 h-px bg-white/20 sm:mx-12 lg:mx-20" />
+        <div className="mx-auto h-px w-[calc(100%-48px)] max-w-[1440px] bg-white/20 sm:w-[calc(100%-96px)]" />
 
-        <div className="mx-auto w-full max-w-[1200px] px-6 py-7 sm:px-12 lg:px-8">
-          <p className="text-center text-xs text-[#D6C7F7] md:translate-x-5 md:text-left">
+        <div className="mx-auto w-full max-w-[1600px] px-6 py-8 sm:px-12 lg:px-16 xl:px-20">
+          <p className="text-center text-xs text-[#D6C7F7] md:text-left">
             © 2026 GeoKenistik. Барлық құқықтар қорғалған.
           </p>
         </div>

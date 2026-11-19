@@ -27,7 +27,7 @@ export default async function SupportPage() {
   const session = await auth.api.getSession({ headers: await headers() }).catch(() => null);
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 pb-16 pt-28 font-sans text-slate-800 md:px-8">
+    <div className="min-h-screen bg-[#f6f0dd] px-4 pb-16 pt-28 font-sans text-slate-800 md:px-8">
       <div className="mx-auto max-w-5xl">
         <header className="mb-8 max-w-2xl">
           <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">

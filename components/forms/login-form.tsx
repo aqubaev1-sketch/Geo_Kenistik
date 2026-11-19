@@ -128,7 +128,7 @@ export function LoginForm({
 
   return (
     <div
-      className={`w-full max-w-md ${className ?? ""}`}
+      className={`w-full max-w-none ${className ?? ""}`}
       {...props}
     >
       <div className="w-full">
@@ -137,8 +137,7 @@ export function LoginForm({
           
 
           <p className="text-sm text-[#6a7282]">
-            Профильге кіру және ҰБТ-ға дайындықты жалғастыру үшін
-            жүйеге кіріңіз
+            GeoKenistik платформасындағы оқу мен жұмысты жалғастыру үшін жүйеге кіріңіз
           </p>
         </div>
 

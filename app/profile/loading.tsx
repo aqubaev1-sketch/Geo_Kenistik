@@ -1,7 +1,7 @@
 
 export default function ProfileLoading() {
   return (
-    <div className="min-h-screen bg-slate-50 px-4 pb-16 pt-28 md:px-8">
+    <div className="min-h-screen bg-[#f6f0dd] px-4 pb-16 pt-28 md:px-8">
       <div className="mx-auto max-w-4xl space-y-5 animate-pulse">
 
         {/* Profile header */}
