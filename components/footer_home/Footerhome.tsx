@@ -31,10 +31,7 @@ export default function FooterHome({ showCta = true }: { showCta?: boolean }) {
           <Doodle variant="wave" className="pointer-events-none absolute -left-10 top-10 hidden h-28 w-64 rotate-12 text-white/30 md:block" />
           <Doodle variant="spark" className="pointer-events-none absolute right-[7%] top-[15%] h-20 w-20 text-[#dfff3f] sm:h-28 sm:w-28" />
           <Doodle variant="rays" className="pointer-events-none absolute bottom-10 right-[18%] hidden h-16 w-16 text-white/40 sm:block" />
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold text-white/80">
-            <GraduationCap className="h-4 w-4" />
-            GEOKENISTIK · 10-СЫНЫП МАТЕМАТИКАСЫ
-          </div>
+          
 
           <h2 className="max-w-4xl text-4xl font-black leading-[.95] tracking-[-.045em] sm:text-5xl lg:text-7xl">
             Математиканы жүйелі түрде меңгеріңіз.

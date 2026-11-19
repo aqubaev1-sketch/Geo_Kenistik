@@ -15,9 +15,9 @@ export default function Header() {
   const isAdmin = session?.user.role === "admin";
 
   const closeMenu = () => setIsMenuOpen(false);
-  const handleSignIn = async () => {
+  const handleSignIn = () => {
     closeMenu();
-    await authClient.signIn.social({ provider: "google", callbackURL: "/profile" });
+    window.location.assign("/login");
   };
   const handleLogout = async () => {
     closeMenu();
