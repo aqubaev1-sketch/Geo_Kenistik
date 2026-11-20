@@ -42,7 +42,8 @@ export default function RootLayout({
   return (
     <html lang="kk" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        // className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} antialiased`}
       >
         <NuqsAdapter>
           <ThemeProvider
