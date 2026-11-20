@@ -157,7 +157,8 @@ iframe {
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --font-family: "Inter", sans-serif;
+  /* --font-family: "Inter", sans-serif; */
+  --font-sans: var(--font-inter), "Noto Sans", Arial, sans-serif;
 }
 
 @layer base {
@@ -178,7 +179,8 @@ iframe {
 }
 
 html, body {
-  font-family: "Inter", sans-serif;
+  /* font-family: "Inter", sans-serif; */
+  font-family: var(--font-inter), "Noto Sans", Arial, sans-serif;
   overflow-x: hidden;
   scroll-behavior: smooth;
   color-scheme: light;
@@ -370,7 +372,8 @@ main :is(button, a)[class*="bg-indigo-"] {
 .geo-spin { animation: geoSpin 8s ease-in-out infinite; }
 
 h1, h2, h3 {
-  font-family: "Inter", sans-serif;
+  /* font-family: "Inter", sans-serif; */
+  font-family: var(--font-inter), "Noto Sans", Arial, sans-serif;
 }
 
 @keyframes fadeIn {
