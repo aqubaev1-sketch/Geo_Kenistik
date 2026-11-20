@@ -60,9 +60,7 @@ export function LandingHero() {
             Кеңістікті көр.{" "}
             <span className="inline-block -rotate-1 border-2 border-black bg-[#dfff3f] px-3 shadow-[6px_7px_0_#000]">Математиканы түсін.</span>
           </h1>
-          <p className="hero-reveal hero-reveal-delay-2 mt-8 max-w-2xl text-lg font-medium leading-8 text-black/75 sm:text-xl">
-            Теория, тапсырмалар және интерактивті 3D-модельдер бір жерде. Оқушы үйренеді, мұғалім курс құрып, нәтижені бақылайды.
-          </p>
+          
           <div className="hero-reveal hero-reveal-delay-3 mt-9 flex flex-col gap-3 sm:flex-row">
             <Link href="/courses" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border-2 border-black bg-[#dfff3f] px-7 text-base font-black text-black shadow-[3px_4px_0_#000] transition-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/80">Курстарды бастау<ArrowUpRight className="h-5 w-5" /></Link>
             <Link href="/laboratory" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border-2 border-black bg-[#fffef8] px-7 text-base font-black text-black shadow-[3px_4px_0_#000] transition-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/80"><Play className="h-5 w-5 fill-current" />Зертхананы ашу</Link>
