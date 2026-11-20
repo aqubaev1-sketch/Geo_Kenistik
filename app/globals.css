@@ -384,6 +384,25 @@ h1, h2, h3 {
 .animate-fadeIn {
   animation: fadeIn .5s ease;
 }
+/* Дергание карточек при наведении */
+@keyframes geoWiggle {
+  0%, 100% { transform: rotate(0) translateY(0); }
+  20% { transform: rotate(-1.6deg) translateY(-4px); }
+  40% { transform: rotate(1.4deg) translateY(-2px); }
+  60% { transform: rotate(-1deg) translateY(-4px); }
+  80% { transform: rotate(.8deg) translateY(-1px); }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .geo-wiggle:hover {
+    animation: geoWiggle .6s ease-in-out;
+  }
+}
+
+
+
+
+
 /* body {
   background:
     radial-gradient(60% 50% at 25% 15%, rgba(105,96,197,0.25), transparent 70%),

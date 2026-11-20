@@ -14,7 +14,7 @@ export function HomeSections() {
       <section className="container relative py-16 sm:py-24" aria-labelledby="roles-title">
         <Doodle variant="loop" className="pointer-events-none absolute -right-10 top-2 hidden h-28 w-36 rotate-12 text-black/80 xl:block" />
         <div className="grid items-stretch gap-5 lg:grid-cols-[.8fr_1.2fr]">
-          <div className="flex flex-col justify-between rounded-[34px] bg-black p-7 text-white sm:p-11">
+          <div className="geo-wiggle flex flex-col justify-between rounded-[34px] bg-black p-7 text-white sm:p-11">
             <div>
               <GraduationCap className="h-11 w-11 text-[#dfff3f]" />
               <h2 id="roles-title" className="mt-8 max-w-lg text-[clamp(2.5rem,5vw,4.8rem)] font-black leading-[.95] tracking-[-.055em]">Бір жерде оқу және оқыту</h2>
@@ -24,7 +24,7 @@ export function HomeSections() {
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
-            <article className="rotate-[-1deg] rounded-[34px] border-2 border-black bg-[#fffef8] p-7 shadow-[8px_9px_0_#000] sm:p-9">
+            <article className="geo-wiggle rotate-[-1deg] rounded-[34px] border-2 border-black bg-[#fffef8] p-7 shadow-[8px_9px_0_#000] sm:p-9">
               <UserRound className="h-10 w-10" />
               <h3 className="mt-12 text-3xl font-black tracking-tight">Оқушыға</h3>
               <ul className="mt-6 space-y-4 text-base leading-6 text-black/70">
@@ -32,7 +32,7 @@ export function HomeSections() {
               </ul>
               <Link href="/courses" className="mt-10 inline-flex items-center gap-2 font-black underline decoration-2 underline-offset-4">Курстарды ашу<ArrowUpRight className="h-5 w-5" /></Link>
             </article>
-            <article className="rotate-[1deg] rounded-[34px] border-2 border-black bg-[#ff9bd9] p-7 shadow-[8px_9px_0_#000] sm:p-9">
+            <article className="geo-wiggle rotate-[1deg] rounded-[34px] border-2 border-black bg-[#ff9bd9] p-7 shadow-[8px_9px_0_#000] sm:p-9">
               <PenTool className="h-10 w-10" />
               <h3 className="mt-12 text-3xl font-black tracking-tight">Мұғалімге</h3>
               <ul className="mt-6 space-y-4 text-base leading-6 text-black/75">
@@ -57,7 +57,7 @@ export function HomeSections() {
 
         <ol className="mt-12 grid gap-5 lg:grid-cols-3">
           {paths.map(({ icon: Icon, title, text, color }, index) => (
-            <li key={title} className={`${color} relative min-h-80 overflow-hidden rounded-[34px] border-2 border-black p-7 sm:p-9`}>
+            <li key={title} className={`${color} geo-wiggle relative min-h-80 overflow-hidden rounded-[34px] border-2 border-black p-7 sm:p-9`}>
               <span className="absolute right-6 top-4 text-7xl font-black text-black/10">{index + 1}</span>
               {index === 1 ? <Doodle variant="spark" className="pointer-events-none absolute -right-4 bottom-0 h-24 w-24 text-black/20" /> : null}
               <Icon className="h-10 w-10" />
