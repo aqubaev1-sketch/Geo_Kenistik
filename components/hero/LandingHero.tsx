@@ -56,10 +56,12 @@ export function LandingHero() {
           <div className="hero-reveal inline-flex items-center gap-2 rounded-full border-2 border-black bg-[#fffef8] px-4 py-2 text-sm font-black shadow-[4px_5px_0_#000]">
             <Box className="h-4 w-4" />10-сынып математикасы
           </div>
-          <h1 className="hero-reveal hero-reveal-delay mt-7 break-normal text-[clamp(3rem,6.4vw,6rem)] font-black leading-[.9] tracking-[-.06em] text-black [overflow-wrap:normal] [text-wrap:balance]">
-            Кеңістікті көр.{" "}
-            <span className="inline-block -rotate-1 border-2 border-black bg-[#dfff3f] px-3 shadow-[6px_7px_0_#000]">Математиканы түсін.</span>
-          </h1>
+          <h1 className="hero-reveal hero-reveal-delay mt-7 break-normal text-[clamp(2rem,4.8vw,5.5rem)] font-black leading-[.95] tracking-[-.06em] text-black [overflow-wrap:normal] [text-wrap:balance]">
+  Кеңістікті көр.{" "}
+  <span className="inline-block -rotate-1 whitespace-nowrap border-2 border-black bg-[#dfff3f] px-3 py-1 shadow-[6px_7px_0_#000]">
+    Математиканы түсін.
+  </span>
+</h1>
           
           <div className="hero-reveal hero-reveal-delay-3 mt-9 flex flex-col gap-3 sm:flex-row">
             <Link href="/courses" className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl border-2 border-black bg-[#dfff3f] px-7 text-base font-black text-black shadow-[3px_4px_0_#000] transition-transform hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/80">Курстарды бастау<ArrowUpRight className="h-5 w-5" /></Link>
