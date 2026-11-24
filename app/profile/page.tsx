@@ -5,6 +5,7 @@ import {
   BarChart3,
   BookOpen,
   CheckCircle2,
+  ChevronDown,
   ClipboardCheck,
   Clock3,
   Eye,
@@ -372,8 +373,20 @@ export default async function ProfilePage() {
       revision: latest.filter((item) => item.attempt?.status === "revision")
         .length,
       total: tasks.length,
+      latestAt: latest.reduce(
+        (latestDate, item) =>
+          item.attempt?.submittedAt && item.attempt.submittedAt > latestDate
+            ? item.attempt.submittedAt
+            : latestDate,
+        new Date(0),
+      ),
     };
   });
+  const sortedLessonResults = [...lessonResults].sort(
+    (a, b) => b.latestAt.getTime() - a.latestAt.getTime(),
+  );
+  const recentLessonResults = sortedLessonResults.slice(0, 3);
+  const olderLessonResults = sortedLessonResults.slice(3);
   const completedCourses = rows.filter((item) => item.completedAt).length;
   const totalScore = lessonResults.reduce((sum, item) => sum + item.score, 0);
   const totalMax = lessonResults.reduce((sum, item) => sum + item.maxScore, 0);
@@ -382,6 +395,71 @@ export default async function ProfilePage() {
     [CheckCircle2, String(completedLessons.value), "Аяқталған сабақ"],
     [Target, `${totalScore}/${totalMax}`, "Жалпы балл"],
   ] as const;
+  const renderLessonResult = (result: (typeof lessonResults)[number]) => {
+    const progress = result.maxScore
+      ? Math.round((result.score / result.maxScore) * 100)
+      : 0;
+
+    return (
+      <article
+        key={result.lessonId}
+        className="group min-w-0 rounded-2xl border border-slate-200 bg-slate-50 p-4 transition-colors hover:border-slate-300"
+      >
+        <div className="flex min-w-0 items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="truncate text-xs font-semibold text-slate-500">
+              {result.courseTitle}
+            </p>
+            <p className="mt-1 truncate font-bold text-slate-900">
+              {result.lessonTitle}
+            </p>
+          </div>
+          <b className="shrink-0 text-lg tabular-nums text-slate-900">
+            {progress}%
+          </b>
+        </div>
+        <div
+          className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-200"
+          role="progressbar"
+          aria-label={`${result.lessonTitle} сабағының нәтижесі`}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={progress}
+        >
+          <div
+            className="h-full rounded-full bg-[#b9e900] transition-[width] duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs">
+          <span className="inline-flex items-center gap-1 text-emerald-700">
+            <CheckCircle2 className="h-4 w-4" />
+            Дұрыс: {result.correct}
+          </span>
+          <span className="inline-flex items-center gap-1 text-rose-700">
+            <XCircle className="h-4 w-4" />
+            Қате: {result.wrong}
+          </span>
+          <span className="inline-flex items-center gap-1 text-amber-700">
+            <Clock3 className="h-4 w-4" />
+            Тексеруде: {result.pending}
+          </span>
+          {result.revision > 0 && (
+            <span className="text-rose-700">
+              Қайта тапсыру: {result.revision}
+            </span>
+          )}
+          <Link
+            href={`/courses/${result.courseSlug}/lessons/${result.lessonId}`}
+            className="ml-auto inline-flex min-h-10 items-center gap-2 font-bold text-slate-900 transition-colors hover:text-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+          >
+            Сабақты ашу
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </Link>
+        </div>
+      </article>
+    );
+  };
   return (
     <main className="container min-h-screen pb-24 pt-32">
       <PageIntro
@@ -448,60 +526,31 @@ export default async function ProfilePage() {
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
             <p className="text-xs font-bold text-indigo-600">НӘТИЖЕЛЕР</p>
-            <h2 className="mt-2 text-xl font-bold">Сабақ нәтижелері</h2>
+            <h2 className="mt-2 text-xl font-bold">Соңғы сабақ нәтижелері</h2>
           </div>
           <span className="text-xs text-slate-400">
             Аяқталған курс: {completedCourses}
           </span>
         </div>
-        {lessonResults.length ? (
-          <div className="mt-4 grid gap-3 lg:grid-cols-2">
-            {lessonResults.map((result) => (
-              <article
-                key={result.lessonId}
-                className="group flex min-w-0 flex-col rounded-2xl border border-slate-200 bg-slate-50 p-4 transition-colors hover:border-slate-300"
-              >
-                <div className="flex min-w-0 items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="truncate text-xs font-semibold text-slate-500">
-                      {result.courseTitle}
-                    </p>
-                    <p className="mt-1 truncate font-bold text-slate-900">
-                      {result.lessonTitle}
-                    </p>
-                  </div>
-                  <b className="shrink-0 text-lg tabular-nums text-slate-900">
-                    {result.score}/{result.maxScore}
-                  </b>
+        {recentLessonResults.length ? (
+          <div className="mt-4 space-y-3">
+            {recentLessonResults.map(renderLessonResult)}
+            {olderLessonResults.length > 0 && (
+              <details className="group/results">
+                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-center gap-2 rounded-xl border border-slate-300 px-4 text-sm font-bold text-slate-900 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 [&::-webkit-details-marker]:hidden">
+                  <span className="group-open/results:hidden">
+                    Барлық нәтижелерді көрсету
+                  </span>
+                  <span className="hidden group-open/results:inline">
+                    Қосымша нәтижелерді жасыру
+                  </span>
+                  <ChevronDown className="h-4 w-4 transition-transform group-open/results:rotate-180" />
+                </summary>
+                <div className="mt-3 space-y-3">
+                  {olderLessonResults.map(renderLessonResult)}
                 </div>
-                <div className="mt-3 flex flex-wrap gap-x-3 gap-y-2 text-xs">
-                  <span className="inline-flex items-center gap-1 text-emerald-700">
-                    <CheckCircle2 className="h-4 w-4" />
-                    Дұрыс: {result.correct}
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-rose-700">
-                    <XCircle className="h-4 w-4" />
-                    Қате: {result.wrong}
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-amber-700">
-                    <Clock3 className="h-4 w-4" />
-                    Тексеруде: {result.pending}
-                  </span>
-                  {result.revision > 0 && (
-                    <span className="text-rose-700">
-                      Қайта тапсыру: {result.revision}
-                    </span>
-                  )}
-                </div>
-                <Link
-                  href={`/courses/${result.courseSlug}/lessons/${result.lessonId}`}
-                  className="mt-3 inline-flex min-h-10 items-center justify-between gap-2 border-t border-slate-200 pt-3 text-xs font-bold text-slate-900 transition-colors hover:text-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
-                >
-                  Сабақты ашу
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                </Link>
-              </article>
-            ))}
+              </details>
+            )}
           </div>
         ) : (
           <div className="mt-5 rounded-2xl bg-slate-50 p-8 text-center text-sm text-slate-500">
