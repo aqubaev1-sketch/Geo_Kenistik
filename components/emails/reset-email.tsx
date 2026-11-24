@@ -23,7 +23,7 @@ const PasswordResetEmail = ({
   requestTime,
 }: PasswordResetEmailProps) => {
   return (
-    <Html lang="en" dir="ltr">
+    <Html lang="kk" dir="ltr">
       <Tailwind>
         <Head />
         <Body className="bg-gray-100 font-sans py-[40px]">
@@ -31,23 +31,21 @@ const PasswordResetEmail = ({
             {/* Header */}
             <Section className="text-center mb-[32px]">
               <Text className="text-[24px] font-bold text-gray-900 m-0">
-                Reset Your Password
+                Құпиясөзді қалпына келтіру
               </Text>
             </Section>
 
             {/* Main Content */}
             <Section className="mb-[32px]">
               <Text className="text-[16px] text-gray-700 leading-[24px] mb-[16px]">
-                Hi {userName},
+                Сәлем, {userName}!
               </Text>
               <Text className="text-[16px] text-gray-700 leading-[24px] mb-[16px]">
-                We received a request to reset your password {requestTime}. If
-                you made this request, click the button below to create a new
-                password.
+                {requestTime} уақытында құпиясөзді қалпына келтіру сұрауы
+                алынды. Жаңа құпиясөз орнату үшін батырманы басыңыз.
               </Text>
               <Text className="text-[16px] text-gray-700 leading-[24px] mb-[24px]">
-                This password reset link will expire in 1 hour for your
-                security.
+                Қауіпсіздік үшін сілтеме бір рет қана қолданылады.
               </Text>
             </Section>
 
@@ -57,15 +55,14 @@ const PasswordResetEmail = ({
                 href={resetUrl}
                 className="bg-red-600 text-white px-[32px] py-[12px] rounded-[6px] text-[16px] font-semibold no-underline box-border hover:bg-red-700"
               >
-                Reset Password
+                Жаңа құпиясөз орнату
               </Button>
             </Section>
 
             {/* Alternative Link */}
             <Section className="mb-[32px]">
               <Text className="text-[14px] text-gray-600 leading-[20px] mb-[8px]">
-                If the button doesn&apos;t work, you can copy and paste this
-                link into your browser:
+                Батырма ашылмаса, сілтемені көшіріп браузерге қойыңыз:
               </Text>
               <Text className="text-[14px] text-blue-600 break-all">
                 {resetUrl}
@@ -77,45 +74,36 @@ const PasswordResetEmail = ({
             {/* Security Notice */}
             <Section className="mb-[24px]">
               <Text className="text-[14px] text-gray-600 leading-[20px] mb-[16px]">
-                <strong>Security Notice:</strong>
+                <strong>Қауіпсіздік:</strong>
               </Text>
               <Text className="text-[14px] text-gray-600 leading-[20px] mb-[12px]">
-                • If you didn&apos;t request a password reset, please ignore
-                this email. Your password will remain unchanged.
+                • Егер сұрауды сіз жібермеген болсаңыз, хатты елемеңіз.
               </Text>
               <Text className="text-[14px] text-gray-600 leading-[20px] mb-[12px]">
-                • For your security, this link can only be used once and expires
-                in 1 hour.
+                • Сілтеме тек бір рет қолданылады және оның мерзімі шектеулі.
               </Text>
               <Text className="text-[14px] text-gray-600 leading-[20px] mb-[12px]">
-                • If you continue to receive these emails, please contact our
-                support team immediately.
+                • Күмәнді хаттар қайталанса, қолдау қызметіне хабарласыңыз.
               </Text>
             </Section>
 
             {/* Help Section */}
             <Section className="bg-gray-50 p-[20px] rounded-[6px] mb-[24px]">
               <Text className="text-[14px] text-gray-700 leading-[20px] mb-[8px] font-semibold">
-                Need Help?
+                Көмек қажет пе?
               </Text>
               <Text className="text-[14px] text-gray-600 leading-[20px] m-0">
-                If you&apos;re having trouble with your password reset, please
-                contact our support team at support@yourcompany.com or visit our
-                help center.
+                Қиындық туындаса, GeoKenistik қолдау бөліміне жазыңыз.
               </Text>
             </Section>
 
             {/* Footer */}
             <Section className="border-t border-gray-200 pt-[24px]">
               <Text className="text-[12px] text-gray-500 leading-[16px] m-0 mb-[8px]">
-                This email was sent by Your Company Name
-              </Text>
-              <Text className="text-[12px] text-gray-500 leading-[16px] m-0 mb-[8px]">
-                123 Business Street, Suite 100, City, State 12345
+                Бұл хат GeoKenistik платформасынан жіберілді.
               </Text>
               <Text className="text-[12px] text-gray-500 leading-[16px] m-0">
-                © {new Date().getFullYear()} Your Company Name. All rights
-                reserved.
+                © {new Date().getFullYear()} GeoKenistik.
               </Text>
             </Section>
           </Container>
