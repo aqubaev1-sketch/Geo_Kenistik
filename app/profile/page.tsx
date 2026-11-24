@@ -5,7 +5,6 @@ import {
   BarChart3,
   BookOpen,
   CheckCircle2,
-  ChevronDown,
   ClipboardCheck,
   Clock3,
   Eye,
@@ -29,7 +28,7 @@ import {
 } from "@/db/schema";
 import { requireRole } from "@/lib/authorization";
 import { CourseCover } from "@/components/courses/CourseCover";
-import { PasswordSettings } from "@/components/profile/PasswordSettings";
+import { CollapsibleResults } from "@/components/profile/CollapsibleResults";
 
 export default async function ProfilePage() {
   const { session, role } = await requireRole(["student", "teacher", "admin"]);
@@ -268,7 +267,6 @@ export default async function ProfilePage() {
             </div>
           )}
         </section>
-        <PasswordSettings />
       </main>
     );
   }
@@ -533,32 +531,17 @@ export default async function ProfilePage() {
           </span>
         </div>
         {recentLessonResults.length ? (
-          <div className="mt-4 space-y-3">
-            {recentLessonResults.map(renderLessonResult)}
-            {olderLessonResults.length > 0 && (
-              <details className="group/results">
-                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-center gap-2 rounded-xl border border-slate-300 px-4 text-sm font-bold text-slate-900 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 [&::-webkit-details-marker]:hidden">
-                  <span className="group-open/results:hidden">
-                    Барлық нәтижелерді көрсету
-                  </span>
-                  <span className="hidden group-open/results:inline">
-                    Қосымша нәтижелерді жасыру
-                  </span>
-                  <ChevronDown className="h-4 w-4 transition-transform group-open/results:rotate-180" />
-                </summary>
-                <div className="mt-3 space-y-3">
-                  {olderLessonResults.map(renderLessonResult)}
-                </div>
-              </details>
-            )}
-          </div>
+          <CollapsibleResults
+            recent={recentLessonResults.map(renderLessonResult)}
+            older={olderLessonResults.map(renderLessonResult)}
+            olderCount={olderLessonResults.length}
+          />
         ) : (
           <div className="mt-5 rounded-2xl bg-slate-50 p-8 text-center text-sm text-slate-500">
             Тапсырмаларды орындағаннан кейін нәтижелер осы жерде көрінеді.
           </div>
         )}
       </section>
-      <PasswordSettings />
     </main>
   );
 }
