@@ -444,8 +444,8 @@ export default async function ProfilePage() {
           </div>
         )}
       </section>
-      <section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-6">
-        <div className="flex items-center justify-between">
+      <section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-5 sm:p-6">
+        <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
             <p className="text-xs font-bold text-indigo-600">НӘТИЖЕЛЕР</p>
             <h2 className="mt-2 text-xl font-bold">Сабақ нәтижелері</h2>
@@ -455,48 +455,50 @@ export default async function ProfilePage() {
           </span>
         </div>
         {lessonResults.length ? (
-          <div className="mt-5 space-y-3">
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
             {lessonResults.map((result) => (
               <article
                 key={result.lessonId}
-                className="rounded-2xl border border-slate-100 bg-slate-50 p-5"
+                className="group flex min-w-0 flex-col rounded-2xl border border-slate-200 bg-slate-50 p-4 transition-colors hover:border-slate-300"
               >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="text-xs font-semibold text-slate-400">
+                <div className="flex min-w-0 items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="truncate text-xs font-semibold text-slate-500">
                       {result.courseTitle}
                     </p>
-                    <p className="mt-1 font-bold text-slate-900">
+                    <p className="mt-1 truncate font-bold text-slate-900">
                       {result.lessonTitle}
                     </p>
                   </div>
-                  <b className="text-lg text-indigo-600">
+                  <b className="shrink-0 text-lg tabular-nums text-slate-900">
                     {result.score}/{result.maxScore}
                   </b>
                 </div>
-                <div className="mt-4 flex flex-wrap gap-3 text-xs">
-                  <span className="inline-flex items-center gap-1.5 text-emerald-600">
+                <div className="mt-3 flex flex-wrap gap-x-3 gap-y-2 text-xs">
+                  <span className="inline-flex items-center gap-1 text-emerald-700">
                     <CheckCircle2 className="h-4 w-4" />
-                    Дұрыс жауап: {result.correct}
+                    Дұрыс: {result.correct}
                   </span>
-                  <span className="inline-flex items-center gap-1.5 text-rose-600">
+                  <span className="inline-flex items-center gap-1 text-rose-700">
                     <XCircle className="h-4 w-4" />
-                    Қате жауап: {result.wrong}
+                    Қате: {result.wrong}
                   </span>
-                  <span className="text-amber-600">
-                    Тексерілуде: {result.pending}
+                  <span className="inline-flex items-center gap-1 text-amber-700">
+                    <Clock3 className="h-4 w-4" />
+                    Тексеруде: {result.pending}
                   </span>
                   {result.revision > 0 && (
-                    <span className="text-rose-600">
-                      Қайта орындау: {result.revision}
+                    <span className="text-rose-700">
+                      Қайта тапсыру: {result.revision}
                     </span>
                   )}
                 </div>
                 <Link
                   href={`/courses/${result.courseSlug}/lessons/${result.lessonId}`}
-                  className="mt-4 inline-flex text-xs font-bold text-indigo-600"
+                  className="mt-3 inline-flex min-h-10 items-center justify-between gap-2 border-t border-slate-200 pt-3 text-xs font-bold text-slate-900 transition-colors hover:text-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
                 >
                   Сабақты ашу
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Link>
               </article>
             ))}
