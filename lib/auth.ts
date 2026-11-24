@@ -35,12 +35,9 @@ async function sendEmailOrThrow({
 }) {
   const smtpUser = process.env.SMTP_USER?.trim();
   const smtpPassword = process.env.SMTP_PASS?.replace(/\s/g, "");
-  const configuredSenderAddress = process.env.EMAIL_SENDER_ADDRESS?.trim();
-  const senderAddress =
-    configuredSenderAddress &&
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(configuredSenderAddress)
-      ? configuredSenderAddress
-      : smtpUser;
+  // Gmail SMTP only accepts the authenticated mailbox as the envelope sender.
+  // Keeping this tied to SMTP_USER prevents 501 "sender address must match".
+  const senderAddress = smtpUser;
   const senderName = process.env.EMAIL_SENDER_NAME?.trim() || "GeoKenistik";
 
   if (!smtpUser || !smtpPassword || !senderAddress) {
