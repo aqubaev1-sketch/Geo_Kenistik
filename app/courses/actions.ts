@@ -44,18 +44,24 @@ export async function startCourse(courseId:string,slug:string){
 
 export async function completeLesson(courseId:string,slug:string,lessonId:string){
   const {session}=await requireRole(['student']);
-  const enrollment=await db.query.enrollments.findFirst({where:and(eq(enrollments.courseId,courseId),eq(enrollments.studentId,session.user.id))});
+  const [enrollment,ordered,lessonTasks]=await Promise.all([
+    db.query.enrollments.findFirst({where:and(eq(enrollments.courseId,courseId),eq(enrollments.studentId,session.user.id))}),
+    publishedLessons(courseId),
+    db.select({id:assignments.id}).from(assignments).where(eq(assignments.lessonId,lessonId)),
+  ]);
   if(!enrollment)redirect(`/courses/${slug}`);
-  const ordered=await publishedLessons(courseId);const index=ordered.findIndex(item=>item.id===lessonId);if(index<0)throw new Error('Сабақ табылмады');
-  const lessonTasks=await db.select({id:assignments.id}).from(assignments).where(eq(assignments.lessonId,lessonId));
+  const index=ordered.findIndex(item=>item.id===lessonId);if(index<0)throw new Error('Сабақ табылмады');
   if(lessonTasks.length){const attempts=await db.select({assignmentId:submissions.assignmentId,status:submissions.status}).from(submissions).where(and(eq(submissions.studentId,session.user.id),inArray(submissions.assignmentId,lessonTasks.map(item=>item.id)))).orderBy(desc(submissions.submittedAt));const latest=new Map<string,string>();for(const item of attempts)if(!latest.has(item.assignmentId))latest.set(item.assignmentId,item.status);if(lessonTasks.some(item=>!latest.has(item.id)||latest.get(item.id)==='revision'))throw new Error('Барлық тапсырманы орындаңыз')}
   const now=new Date();
   await db.insert(lessonProgress).values({lessonId,studentId:session.user.id,status:'completed',startedAt:now,completedAt:now,lastActiveAt:now}).onConflictDoUpdate({target:[lessonProgress.lessonId,lessonProgress.studentId],set:{status:'completed',completedAt:now,lastActiveAt:now}});
   const rows=await db.select({lessonId:lessonProgress.lessonId,status:lessonProgress.status}).from(lessonProgress).where(and(eq(lessonProgress.studentId,session.user.id),inArray(lessonProgress.lessonId,ordered.map(item=>item.id))));
   const completedCount=new Set(rows.filter(item=>item.status==='completed').map(item=>item.lessonId)).size;
   const percent=Math.round(completedCount/ordered.length*100);const finished=percent===100;const finalAssessment=finished?await findFinalAssessment(courseId):null;
-  await db.update(enrollments).set({progressPercent:percent,lastActiveAt:now,completedAt:finished&&!finalAssessment?.isPublished?now:enrollment.completedAt}).where(eq(enrollments.id,enrollment.id));
   const next=ordered[index+1];
-  if(next){await db.insert(lessonProgress).values({lessonId:next.id,studentId:session.user.id,status:'in_progress',startedAt:now,lastActiveAt:now}).onConflictDoUpdate({target:[lessonProgress.lessonId,lessonProgress.studentId],set:{lastActiveAt:now}});revalidatePath(`/courses/${slug}`);redirect(`/courses/${slug}/lessons/${next.id}`)}
+  await Promise.all([
+    db.update(enrollments).set({progressPercent:percent,lastActiveAt:now,completedAt:finished&&!finalAssessment?.isPublished?now:enrollment.completedAt}).where(eq(enrollments.id,enrollment.id)),
+    next?db.insert(lessonProgress).values({lessonId:next.id,studentId:session.user.id,status:'in_progress',startedAt:now,lastActiveAt:now}).onConflictDoUpdate({target:[lessonProgress.lessonId,lessonProgress.studentId],set:{lastActiveAt:now}}):Promise.resolve(),
+  ]);
+  if(next){revalidatePath(`/courses/${slug}`);redirect(`/courses/${slug}/lessons/${next.id}`)}
   revalidatePath(`/courses/${slug}`);revalidatePath('/profile');redirect(`/courses/${slug}?completed=1`);
 }
