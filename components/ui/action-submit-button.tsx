@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Check, LoaderCircle } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
 
@@ -11,6 +11,7 @@ type ActionSubmitButtonProps = {
   className?: string;
   disabled?: boolean;
   describedBy?: string;
+  icon?: ReactNode;
 };
 
 export function ActionSubmitButton({
@@ -20,6 +21,7 @@ export function ActionSubmitButton({
   className = '',
   disabled = false,
   describedBy,
+  icon,
 }: ActionSubmitButtonProps) {
   const { pending } = useFormStatus();
   const [confirmed, setConfirmed] = useState(false);
@@ -48,6 +50,7 @@ export function ActionSubmitButton({
     >
       {pending ? <LoaderCircle className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" /> : null}
       {confirmed ? <Check className="h-4 w-4 shrink-0" aria-hidden="true" /> : null}
+      {!pending && !confirmed ? icon : null}
       <span aria-live="polite">{pending ? pendingLabel : confirmed ? successLabel : label}</span>
     </button>
   );

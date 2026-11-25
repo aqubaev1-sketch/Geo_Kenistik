@@ -135,7 +135,13 @@ export default async function CourseFinalAssessmentPage({
         tasks={tasks}
         attempts={attempts}
         heading="Қорытынды жұмыс тапсырмалары"
-        description="Жалпы нәтиже 10 баллмен есептеледі. Қажет болса, жауаптарды қайта жіберуге болады."
+        description="Жалпы нәтиже 10 баллмен есептеледі. Өту балы жиналмаса, тапсырмаларды қайта орындауға болады."
+        allowRetry={Boolean(
+          result &&
+            result.answered === tasks.length &&
+            !result.passed &&
+            !result.pending,
+        )}
       />
     </main>
   );
