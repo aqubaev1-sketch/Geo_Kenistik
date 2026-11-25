@@ -303,6 +303,8 @@ export default async function ProfilePage() {
           maxScore: assignments.maxScore,
           lessonId: lessons.id,
           lessonTitle: lessons.title,
+          isFinalAssessment: lessons.isFinalAssessment,
+          passScore: lessons.passScore,
           courseId: courses.id,
           courseTitle: courses.title,
           courseSlug: courses.slug,
@@ -337,7 +339,13 @@ export default async function ProfilePage() {
   for (const item of attempts)
     if (!latestAttempts.has(item.assignmentId))
       latestAttempts.set(item.assignmentId, item);
-  const lessonIds = Array.from(new Set(taskRows.map((item) => item.lessonId)));
+  const lessonIds = Array.from(
+    new Set(
+      taskRows
+        .filter((item) => !item.isFinalAssessment)
+        .map((item) => item.lessonId),
+    ),
+  );
   const lessonResults = lessonIds.map((lessonId) => {
     const tasks = taskRows.filter((item) => item.lessonId === lessonId);
     const latest = tasks.map((item) => ({
@@ -385,6 +393,45 @@ export default async function ProfilePage() {
   );
   const recentLessonResults = sortedLessonResults.slice(0, 3);
   const olderLessonResults = sortedLessonResults.slice(3);
+  const finalResults = Array.from(
+    new Set(
+      taskRows
+        .filter((item) => item.isFinalAssessment)
+        .map((item) => item.courseId),
+    ),
+  ).map((courseId) => {
+    const tasks = taskRows.filter(
+      (item) => item.courseId === courseId && item.isFinalAssessment,
+    );
+    const current = tasks.map((task) => ({
+      task,
+      attempt: latestAttempts.get(task.id),
+    }));
+    const score = current.reduce(
+      (sum, item) =>
+        sum +
+        (item.attempt?.status === "checked" ? (item.attempt.score ?? 0) : 0),
+      0,
+    );
+    const pending = current.filter(
+      (item) => item.attempt?.status === "submitted",
+    ).length;
+    const answered = current.filter((item) => item.attempt).length;
+    const maxScore = tasks.reduce((sum, task) => sum + task.maxScore, 0);
+    return {
+      courseId,
+      courseTitle: tasks[0].courseTitle,
+      courseSlug: tasks[0].courseSlug,
+      score,
+      maxScore,
+      pending,
+      answered,
+      passed:
+        answered === tasks.length &&
+        pending === 0 &&
+        score >= tasks[0].passScore,
+    };
+  }).filter((result) => result.answered > 0);
   const completedCourses = rows.filter((item) => item.completedAt).length;
   const totalScore = lessonResults.reduce((sum, item) => sum + item.score, 0);
   const totalMax = lessonResults.reduce((sum, item) => sum + item.maxScore, 0);
@@ -542,6 +589,40 @@ export default async function ProfilePage() {
           </div>
         )}
       </section>
+      {finalResults.length > 0 && (
+        <section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-5 sm:p-6">
+          <h2 className="text-xl font-bold text-slate-950">
+            Қорытынды бағалау
+          </h2>
+          <div className="mt-4 space-y-3">
+            {finalResults.map((result) => (
+              <Link
+                key={result.courseId}
+                href={`/courses/${result.courseSlug}/final`}
+                className="flex min-h-16 items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-slate-400"
+              >
+                <div className="min-w-0">
+                  <p className="truncate font-bold text-slate-950">
+                    {result.courseTitle}
+                  </p>
+                  <p className={`mt-1 text-xs font-bold ${result.pending ? "text-amber-700" : result.passed ? "text-emerald-700" : "text-slate-600"}`}>
+                    {result.pending
+                      ? "Мұғалімнің тексеруін күтеді"
+                      : result.passed
+                        ? "Курс сәтті аяқталды"
+                        : result.answered
+                          ? "Қайта орындауға болады"
+                          : "Әлі орындалмаған"}
+                  </p>
+                </div>
+                <b className="shrink-0 text-xl tabular-nums text-slate-950">
+                  {result.score}/{result.maxScore || 10}
+                </b>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </main>
   );
 }

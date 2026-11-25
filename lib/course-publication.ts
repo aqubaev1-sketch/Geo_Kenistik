@@ -32,7 +32,7 @@ export async function getCoursePublicationIssues(courseId:string):Promise<Public
   if(course.title.trim().length<3)issues.push({code:'title',message:'Курс атауы кемінде 3 таңбадан тұруы керек'});
   const cover=course.coverMediaId?await db.query.mediaAssets.findFirst({where:and(eq(mediaAssets.id,course.coverMediaId),eq(mediaAssets.storageProvider,'cloudinary'))}):null;
   if(!cover?.publicUrl)issues.push({code:'cover',message:'Курс мұқабасын жүктеңіз'});
-  const published=await db.select({id:lessons.id,title:lessons.title}).from(lessons).innerJoin(courseSections,eq(lessons.sectionId,courseSections.id)).where(and(eq(courseSections.courseId,courseId),eq(lessons.isPublished,true)));
+  const published=await db.select({id:lessons.id,title:lessons.title}).from(lessons).innerJoin(courseSections,eq(lessons.sectionId,courseSections.id)).where(and(eq(courseSections.courseId,courseId),eq(lessons.isPublished,true),eq(lessons.isFinalAssessment,false)));
   if(!published.length)issues.push({code:'lesson',message:'Кемінде бір сабақты «Сабақ дайын» деп белгілеңіз'});
   if(published.length){const rows=await db.select({id:assignments.id,title:assignments.title,type:assignments.type,prompt:assignments.prompt,settings:assignments.settings,maxScore:assignments.maxScore,lessonId:lessons.id,lessonTitle:lessons.title}).from(assignments).innerJoin(lessons,eq(assignments.lessonId,lessons.id)).where(inArray(assignments.lessonId,published.map(item=>item.id)));for(const row of rows)issues.push(...assignmentIssues(row));}
   return issues;

@@ -7,10 +7,10 @@ type Attempt={assignmentId:string;status:string;score:number|null;feedback:strin
 
 function Formula({value}:{value:string}){let html='';try{html=katex.renderToString(value,{throwOnError:false,displayMode:true})}catch{}return <div className="min-w-0 max-w-full overflow-x-auto overflow-y-hidden rounded-xl bg-indigo-50 px-4 py-5 text-center" dangerouslySetInnerHTML={{__html:html}}/>}
 
-export function StudentAssignments({courseId,slug,lessonId,tasks,attempts}:{courseId:string;slug:string;lessonId:string;tasks:Task[];attempts:Attempt[]}){
+export function StudentAssignments({courseId,slug,lessonId,tasks,attempts,heading='Сабақ тапсырмалары',description='Сабақты аяқтау үшін барлық тапсырмаға жауап жіберіңіз.'}:{courseId:string;slug:string;lessonId:string;tasks:Task[];attempts:Attempt[];heading?:string;description?:string}){
   if(!tasks.length)return null;
   return <section className="mt-12 border-t border-slate-100 pt-10">
-    <div className="mb-7"><p className="text-xs font-bold text-indigo-600">БІЛІМДІ ТЕКСЕРУ</p><h2 className="mt-2 text-3xl font-bold tracking-[-.03em] text-slate-900">Сабақ тапсырмалары</h2><p className="mt-2 text-sm text-slate-500">Сабақты аяқтау үшін барлық тапсырмаға жауап жіберіңіз.</p></div>
+    <div className="mb-7"><p className="text-xs font-bold text-indigo-600">БІЛІМДІ ТЕКСЕРУ</p><h2 className="mt-2 text-3xl font-bold tracking-[-.03em] text-slate-900">{heading}</h2><p className="mt-2 text-sm text-slate-500">{description}</p></div>
     <div className="space-y-5">{tasks.map((task,index)=>{
       const prompt=task.prompt&&typeof task.prompt==='object'?task.prompt as Record<string,unknown>:{};
       const settings=task.settings&&typeof task.settings==='object'?task.settings as Record<string,unknown>:{};

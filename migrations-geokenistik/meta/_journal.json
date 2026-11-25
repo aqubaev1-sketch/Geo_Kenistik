@@ -15,6 +15,13 @@
       "when": 1794955867418,
       "tag": "0001_admin_controls",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795591215510,
+      "tag": "0002_course_final_assessment",
+      "breakpoints": true
     }
   ]
 }

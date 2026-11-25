@@ -2,7 +2,7 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { and, asc, eq, inArray } from "drizzle-orm";
-import { CheckCircle2, Circle, PlayCircle } from "lucide-react";
+import { CheckCircle2, Circle, GraduationCap, Lock, PlayCircle } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { db } from "@/db/drizzle";
 import {
@@ -15,6 +15,7 @@ import {
 } from "@/db/schema";
 import { startCourse } from "../actions";
 import { ActionSubmitButton } from "@/components/ui/action-submit-button";
+import { findFinalAssessment, getFinalAssessmentResult } from "@/lib/final-assessment";
 
 export default async function CoursePage({
   params,
@@ -39,7 +40,7 @@ export default async function CoursePage({
     orderBy: [asc(courseSections.position)],
     with: {
       lessons: {
-        where: eq(lessons.isPublished, true),
+        where: and(eq(lessons.isPublished, true), eq(lessons.isFinalAssessment, false)),
         orderBy: [asc(lessons.position)],
       },
     },
@@ -80,6 +81,15 @@ export default async function CoursePage({
       .filter((item) => item.status === "completed")
       .map((item) => item.lessonId),
   );
+  const finalAssessment = await findFinalAssessment(course.id);
+  const finalResult =
+    enrollment && finalAssessment?.isPublished
+      ? await getFinalAssessmentResult(course.id, session!.user.id)
+      : null;
+  const finalUnlocked =
+    Boolean(enrollment) &&
+    allLessons.length > 0 &&
+    completedIds.size === allLessons.length;
   return (
     <main className="container min-h-screen pb-24 pt-32">
       <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-indigo-600 to-blue-600 text-white">
@@ -160,6 +170,35 @@ export default async function CoursePage({
             <p className="rounded-2xl bg-slate-50 p-8 text-center text-sm text-slate-500">
               Бұл курста жарияланған сабақ жоқ.
             </p>
+          )}
+          {finalAssessment?.isPublished && (
+            <div className="mt-7 rounded-2xl border-2 border-black bg-[#f4ffd0] p-5 shadow-[4px_5px_0_#000]">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-start gap-3">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border-2 border-black bg-[#dfff3f]">
+                    {finalUnlocked ? <GraduationCap className="h-5 w-5" /> : <Lock className="h-5 w-5" />}
+                  </span>
+                  <div>
+                    <h3 className="font-black text-slate-950">{finalAssessment.title}</h3>
+                    <p className="mt-1 text-sm leading-6 text-slate-700">
+                      {finalUnlocked
+                        ? finalResult?.passed
+                          ? `Нәтиже: ${finalResult.score}/10 · курс аяқталды`
+                          : "10 балдық қорытынды жұмысты орындаңыз."
+                        : "Барлық сабақ аяқталғаннан кейін ашылады."}
+                    </p>
+                  </div>
+                </div>
+                {finalUnlocked && (
+                  <Link
+                    href={`/courses/${slug}/final`}
+                    className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl border-2 border-black bg-white px-5 text-sm font-black text-black transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#dfff3f]"
+                  >
+                    {finalResult?.answered ? "Нәтижені ашу" : "Бастау"}
+                  </Link>
+                )}
+              </div>
+            </div>
           )}
         </section>
         <aside className="h-fit rounded-[24px] border border-indigo-100 bg-indigo-50 p-6">

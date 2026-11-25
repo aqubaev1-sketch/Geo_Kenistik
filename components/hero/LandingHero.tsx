@@ -42,9 +42,9 @@ function GeometryScene() {
 }
 
 const FEATURES = [
-  { icon: BookOpen, title: "Теория", bg: "bg-[#fffef8]" },
-  { icon: ListChecks, title: "Тапсырмалар", bg: "bg-[#dfff3f]" },
-  { icon: Box, title: "3D-модельдер", bg: "bg-[#7ee6ff]" },
+  { icon: BookOpen, title: "Теория", bg: "bg-[#fffef8]", href: "/courses" },
+  { icon: ListChecks, title: "Тапсырмалар", bg: "bg-[#dfff3f]", href: "/courses" },
+  { icon: Box, title: "3D-модельдер", bg: "bg-[#7ee6ff]", href: "/laboratory" },
 ];
 
 export function LandingHero() {
@@ -73,10 +73,16 @@ export function LandingHero() {
 
       <section className="container relative z-10 pb-16">
         <ul className="hero-reveal hero-reveal-delay-3 grid gap-4 sm:grid-cols-3">
-          {FEATURES.map(({ icon: Icon, title, bg }, i) => (
-            <li key={title} className={`flex items-center gap-4 rounded-2xl border-2 border-black ${bg} px-5 py-4 shadow-[6px_7px_0_#000]`}>
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 border-black bg-white"><Icon className="h-6 w-6" /></span>
-              <span className="text-lg font-black leading-tight"><span className="mr-2 text-sm opacity-50">0{i + 1}</span>{title}</span>
+          {FEATURES.map(({ icon: Icon, title, bg, href }, i) => (
+            <li key={title}>
+              <Link
+                href={href}
+                className={`group flex min-h-20 items-center gap-4 rounded-2xl border-2 border-black ${bg} px-5 py-4 text-black shadow-[6px_7px_0_#000] transition-[transform,box-shadow] hover:-translate-y-1 hover:shadow-[8px_10px_0_#000] active:translate-y-0 active:shadow-[3px_4px_0_#000] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/80`}
+              >
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 border-black bg-white"><Icon className="h-6 w-6" /></span>
+                <span className="min-w-0 flex-1 text-lg font-black leading-tight"><span className="mr-2 text-sm opacity-50">0{i + 1}</span>{title}</span>
+                <ArrowUpRight className="h-5 w-5 shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+              </Link>
             </li>
           ))}
         </ul>

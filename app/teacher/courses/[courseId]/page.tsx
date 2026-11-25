@@ -6,6 +6,7 @@ import {
   ArrowUp,
   Eye,
   FileText,
+  GraduationCap,
   Trash2,
 } from "lucide-react";
 import { db } from "@/db/drizzle";
@@ -25,6 +26,8 @@ import { CourseDetailsForm } from "@/components/teacher/CourseDetailsForm";
 import { PublicationReadiness } from "@/components/teacher/PublicationReadiness";
 import { getCoursePublicationIssues } from "@/lib/course-publication";
 import { ActionSubmitButton } from "@/components/ui/action-submit-button";
+import { createFinalAssessment } from "../final-actions";
+import { findFinalAssessment } from "@/lib/final-assessment";
 
 export default async function CourseEditorPage({
   params,
@@ -38,6 +41,10 @@ export default async function CourseEditorPage({
     orderBy: [asc(courseSections.position)],
     with: { lessons: { orderBy: [asc(lessons.position)] } },
   });
+  const finalAssessment = await findFinalAssessment(courseId);
+  const regularSections = finalAssessment
+    ? sections.filter((section) => section.id !== finalAssessment.sectionId)
+    : sections;
   const cover = course.coverMediaId
     ? await db.query.mediaAssets.findFirst({
         where: (table, { eq }) => eq(table.id, course.coverMediaId!),
@@ -147,12 +154,12 @@ export default async function CourseEditorPage({
             />
           </form>
           <div className="space-y-4">
-            {sections.length === 0 ? (
+            {regularSections.length === 0 ? (
               <div className="rounded-[24px] border border-dashed border-slate-200 p-12 text-center text-sm text-slate-500">
                 Алдымен курс бөлімін қосыңыз.
               </div>
             ) : (
-              sections.map((section, index) => (
+              regularSections.map((section, index) => (
                 <article
                   key={section.id}
                   className="rounded-[24px] border border-slate-200 bg-white p-5"
@@ -176,7 +183,7 @@ export default async function CourseEditorPage({
                       </form>
                       <form action={moveSection.bind(null, section.id, "down")}>
                         <button
-                          disabled={index === sections.length - 1}
+                              disabled={index === regularSections.length - 1}
                           aria-label="Төмен"
                           className="grid h-8 w-8 place-items-center rounded-lg text-slate-500 disabled:opacity-20"
                         >
@@ -263,6 +270,38 @@ export default async function CourseEditorPage({
                 </article>
               ))
             )}
+          </div>
+          <div className="mt-7 rounded-2xl border-2 border-black bg-[#f4ffd0] p-5 shadow-[4px_5px_0_#000]">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border-2 border-black bg-[#dfff3f]">
+                  <GraduationCap className="h-5 w-5" />
+                </span>
+                <div>
+                  <h2 className="font-black text-slate-950">Қорытынды тапсырма</h2>
+                  <p className="mt-1 text-sm leading-6 text-slate-700">
+                    Курс соңындағы 10 балдық бағалауды құрастырыңыз.
+                  </p>
+                </div>
+              </div>
+              {finalAssessment ? (
+                <Link
+                  href={`/teacher/courses/${courseId}/final`}
+                  className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl border-2 border-black bg-white px-5 text-sm font-black text-black transition hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#dfff3f]"
+                >
+                  Редакторды ашу
+                </Link>
+              ) : (
+                <form action={createFinalAssessment.bind(null, courseId)}>
+                  <ActionSubmitButton
+                    label="Қорытынды жұмыс құру"
+                    pendingLabel="Құрылуда..."
+                    successLabel="Құрылды"
+                    className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl border-2 border-black bg-[#dfff3f] px-5 text-sm font-black text-black"
+                  />
+                </form>
+              )}
+            </div>
           </div>
         </section>
       </div>

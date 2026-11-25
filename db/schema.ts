@@ -61,8 +61,11 @@ export const lessons = pgTable('lessons', {
   id: text('id').primaryKey().default(sql`gen_random_uuid()`), sectionId: text('section_id').notNull().references(() => courseSections.id, { onDelete: 'cascade' }),
   title: text('title').notNull(), slug: text('slug').notNull(), summary: text('summary').notNull().default(''),
   content: jsonb('content').notNull().default([]), youtubeUrl: text('youtube_url'), position: integer('position').notNull().default(0),
-  isPublished: boolean('is_published').notNull().default(false), createdAt: timestamp('created_at').$defaultFn(() => new Date()).notNull(),
-}, (table) => [uniqueIndex('lesson_section_slug_idx').on(table.sectionId, table.slug), index('lessons_section_published_position_idx').on(table.sectionId, table.isPublished, table.position)]);
+  isPublished: boolean('is_published').notNull().default(false),
+  isFinalAssessment: boolean('is_final_assessment').notNull().default(false),
+  passScore: integer('pass_score').notNull().default(6),
+  createdAt: timestamp('created_at').$defaultFn(() => new Date()).notNull(),
+}, (table) => [uniqueIndex('lesson_section_slug_idx').on(table.sectionId, table.slug), index('lessons_section_published_position_idx').on(table.sectionId, table.isPublished, table.position), index('lessons_final_assessment_idx').on(table.isFinalAssessment)]);
 export const assignments = pgTable('assignments', {
   id: text('id').primaryKey().default(sql`gen_random_uuid()`), lessonId: text('lesson_id').notNull().references(() => lessons.id, { onDelete: 'cascade' }),
   title: text('title').notNull(), type: text('type', { enum: ['test', 'number', 'text', 'formula', 'file'] }).notNull(),
