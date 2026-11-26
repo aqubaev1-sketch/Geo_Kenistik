@@ -26,41 +26,47 @@ export default async function CoursePage({
 }) {
   const { slug } = await params;
   const { completed: finished } = await searchParams;
-  const course = await db.query.courses.findFirst({
-    where: and(eq(courses.slug, slug), eq(courses.status, "published")),
-  });
+  const requestHeaders = await headers();
+  const [course, session] = await Promise.all([
+    db.query.courses.findFirst({
+      where: and(eq(courses.slug, slug), eq(courses.status, "published")),
+    }),
+    auth.api.getSession({ headers: requestHeaders }).catch(() => null),
+  ]);
   if (!course) notFound();
-  const cover = course.coverMediaId
-    ? await db.query.mediaAssets.findFirst({
-        where: eq(mediaAssets.id, course.coverMediaId),
-      })
-    : null;
-  const sections = await db.query.courseSections.findMany({
-    where: eq(courseSections.courseId, course.id),
-    orderBy: [asc(courseSections.position)],
-    with: {
-      lessons: {
-        where: and(eq(lessons.isPublished, true), eq(lessons.isFinalAssessment, false)),
-        orderBy: [asc(lessons.position)],
+  const [cover, sections, enrollment, finalAssessment] = await Promise.all([
+    course.coverMediaId
+      ? db.query.mediaAssets.findFirst({
+          where: eq(mediaAssets.id, course.coverMediaId),
+        })
+      : Promise.resolve(null),
+    db.query.courseSections.findMany({
+      where: eq(courseSections.courseId, course.id),
+      orderBy: [asc(courseSections.position)],
+      with: {
+        lessons: {
+          where: and(
+            eq(lessons.isPublished, true),
+            eq(lessons.isFinalAssessment, false),
+          ),
+          orderBy: [asc(lessons.position)],
+        },
       },
-    },
-  });
-  const allLessons = sections.flatMap((section) => section.lessons);
-  const session = await auth.api
-    .getSession({ headers: await headers() })
-    .catch(() => null);
-  const enrollment =
+    }),
     session?.user.role === "student"
-      ? await db.query.enrollments.findFirst({
+      ? db.query.enrollments.findFirst({
           where: and(
             eq(enrollments.courseId, course.id),
             eq(enrollments.studentId, session.user.id),
           ),
         })
-      : null;
-  const progress =
+      : Promise.resolve(null),
+    findFinalAssessment(course.id),
+  ]);
+  const allLessons = sections.flatMap((section) => section.lessons);
+  const [progress, finalResult] = await Promise.all([
     enrollment && allLessons.length
-      ? await db
+      ? db
           .select({
             lessonId: lessonProgress.lessonId,
             status: lessonProgress.status,
@@ -75,17 +81,16 @@ export default async function CoursePage({
               ),
             ),
           )
-      : [];
+      : Promise.resolve([]),
+    enrollment && finalAssessment?.isPublished
+      ? getFinalAssessmentResult(course.id, session!.user.id)
+      : Promise.resolve(null),
+  ]);
   const completedIds = new Set(
     progress
       .filter((item) => item.status === "completed")
       .map((item) => item.lessonId),
   );
-  const finalAssessment = await findFinalAssessment(course.id);
-  const finalResult =
-    enrollment && finalAssessment?.isPublished
-      ? await getFinalAssessmentResult(course.id, session!.user.id)
-      : null;
   const finalUnlocked =
     Boolean(enrollment) &&
     allLessons.length > 0 &&

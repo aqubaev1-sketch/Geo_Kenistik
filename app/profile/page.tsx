@@ -576,6 +576,7 @@ export default async function ProfilePage() {
                   </div>
                   <Link
                     href={`/courses/${item.slug}`}
+                    prefetch
                     className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-indigo-600"
                   >
                     <Play className="h-4 w-4" />
