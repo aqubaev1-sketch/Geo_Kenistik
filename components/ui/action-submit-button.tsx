@@ -12,6 +12,7 @@ type ActionSubmitButtonProps = {
   disabled?: boolean;
   describedBy?: string;
   icon?: ReactNode;
+  formAction?: (formData: FormData) => void | Promise<void>;
 };
 
 export function ActionSubmitButton({
@@ -22,13 +23,15 @@ export function ActionSubmitButton({
   disabled = false,
   describedBy,
   icon,
+  formAction,
 }: ActionSubmitButtonProps) {
-  const { pending } = useFormStatus();
+  const { pending, action } = useFormStatus();
+  const isPending = pending && (!formAction || action === formAction);
   const [confirmed, setConfirmed] = useState(false);
   const submitted = useRef(false);
 
   useEffect(() => {
-    if (pending) {
+    if (isPending) {
       submitted.current = true;
       setConfirmed(false);
       return;
@@ -38,20 +41,21 @@ export function ActionSubmitButton({
     setConfirmed(true);
     const timer = window.setTimeout(() => setConfirmed(false), 2200);
     return () => window.clearTimeout(timer);
-  }, [pending]);
+  }, [isPending]);
 
   return (
     <button
       type="submit"
+      formAction={formAction}
       disabled={disabled || pending}
-      aria-busy={pending}
+      aria-busy={isPending}
       aria-describedby={describedBy}
       className={`${className} transition-[background-color,color,transform,opacity] duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 ${confirmed ? '!bg-emerald-600 !text-white' : ''}`}
     >
-      {pending ? <LoaderCircle className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" /> : null}
+      {isPending ? <LoaderCircle className="h-4 w-4 shrink-0 animate-spin" aria-hidden="true" /> : null}
       {confirmed ? <Check className="h-4 w-4 shrink-0" aria-hidden="true" /> : null}
-      {!pending && !confirmed ? icon : null}
-      <span aria-live="polite">{pending ? pendingLabel : confirmed ? successLabel : label}</span>
+      {!isPending && !confirmed ? icon : null}
+      <span aria-live="polite">{isPending ? pendingLabel : confirmed ? successLabel : label}</span>
     </button>
   );
 }
