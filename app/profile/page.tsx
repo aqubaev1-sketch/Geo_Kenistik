@@ -5,6 +5,7 @@ import {
   BarChart3,
   BookOpen,
   CheckCircle2,
+  ChevronDown,
   ClipboardCheck,
   Clock3,
   Eye,
@@ -532,9 +533,24 @@ export default async function ProfilePage() {
           </article>
         ))}
       </div>
-      <section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-6">
-        <h2 className="text-xl font-bold">Менің курстарым</h2>
-        {rows.length ? (
+      {rows.length ? (
+        <details className="group mt-6 rounded-[24px] border border-slate-200 bg-white p-5 sm:p-6">
+          <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-4 [&::-webkit-details-marker]:hidden">
+            <div className="min-w-0">
+              <h2 className="text-xl font-bold text-slate-950">
+                Менің курстарым
+              </h2>
+              <p className="mt-1 text-sm text-slate-600">
+                {rows.length} курс · {completedCourses} аяқталды ·{" "}
+                {rows.length - completedCourses} жалғасуда
+              </p>
+            </div>
+            <span className="inline-flex shrink-0 items-center gap-2 text-sm font-bold text-slate-800">
+              <span className="group-open:hidden">Курстарды көрсету</span>
+              <span className="hidden group-open:inline">Курстарды жасыру</span>
+              <ChevronDown className="h-5 w-5 transition-transform duration-200 group-open:rotate-180 motion-reduce:transition-none" />
+            </span>
+          </summary>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             {rows.map((item) => (
               <article
@@ -569,12 +585,15 @@ export default async function ProfilePage() {
               </article>
             ))}
           </div>
-        ) : (
+        </details>
+      ) : (
+        <section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-6">
+          <h2 className="text-xl font-bold">Менің курстарым</h2>
           <div className="mt-5 rounded-2xl bg-slate-50 p-10 text-center text-sm text-slate-500">
             Курсты бастағаннан кейін прогресс осы жерде көрінеді.
           </div>
-        )}
-      </section>
+        </section>
+      )}
       {finalResults.length > 0 && (
         <section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-5 sm:p-6">
           <div>
