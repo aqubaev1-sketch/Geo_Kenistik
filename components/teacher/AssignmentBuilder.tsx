@@ -117,6 +117,7 @@ function AssignmentCard({
   deleteAction: Action;
 }) {
   const [value, setValue] = useState(() => normalized(row));
+  const isDirty = JSON.stringify(value) !== JSON.stringify(normalized(row));
   const change = (patch: Partial<AssignmentPayload>) =>
     setValue((current) => ({ ...current, ...patch }));
   const changePrompt = (patch: Partial<AssignmentPayload["prompt"]>) =>
@@ -367,8 +368,19 @@ function AssignmentCard({
             className="mt-2 min-h-24 w-full rounded-xl border border-slate-200 p-3 text-sm outline-none focus:border-indigo-400"
           />
         </label>
+        {isDirty && (
+          <div
+            className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-900"
+            role="status"
+          >
+            Сақталмаған өзгеріс бар. Жалпы балл жаңаруы үшін тапсырманы
+            сақтаңыз.
+          </div>
+        )}
         <ActionSubmitButton
           label="Тапсырманы сақтау"
+          pendingLabel="Сақталуда..."
+          successLabel="Тапсырма сақталды"
           className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 text-sm font-bold text-white"
         />
       </form>

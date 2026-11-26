@@ -304,6 +304,7 @@ export default async function ProfilePage() {
           lessonId: lessons.id,
           lessonTitle: lessons.title,
           isFinalAssessment: lessons.isFinalAssessment,
+          isPublished: lessons.isPublished,
           passScore: lessons.passScore,
           courseId: courses.id,
           courseTitle: courses.title,
@@ -396,12 +397,15 @@ export default async function ProfilePage() {
   const finalResults = Array.from(
     new Set(
       taskRows
-        .filter((item) => item.isFinalAssessment)
+        .filter((item) => item.isFinalAssessment && item.isPublished)
         .map((item) => item.courseId),
     ),
   ).map((courseId) => {
     const tasks = taskRows.filter(
-      (item) => item.courseId === courseId && item.isFinalAssessment,
+      (item) =>
+        item.courseId === courseId &&
+        item.isFinalAssessment &&
+        item.isPublished,
     );
     const current = tasks.map((task) => ({
       task,
@@ -426,12 +430,16 @@ export default async function ProfilePage() {
       maxScore,
       pending,
       answered,
+      taskCount: tasks.length,
+      passScore: tasks[0].passScore,
+      courseProgress:
+        rows.find((item) => item.courseId === courseId)?.progress ?? 0,
       passed:
         answered === tasks.length &&
         pending === 0 &&
         score >= tasks[0].passScore,
     };
-  }).filter((result) => result.answered > 0);
+  });
   const completedCourses = rows.filter((item) => item.completedAt).length;
   const totalScore = lessonResults.reduce((sum, item) => sum + item.score, 0);
   const totalMax = lessonResults.reduce((sum, item) => sum + item.maxScore, 0);
@@ -567,6 +575,87 @@ export default async function ProfilePage() {
           </div>
         )}
       </section>
+      {finalResults.length > 0 && (
+        <section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-5 sm:p-6">
+          <div>
+            <h2 className="text-xl font-bold text-slate-950">
+              Қорытынды бағалау
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Әр курс бойынша қорытынды нәтиже мен өту балын бақылаңыз.
+            </p>
+          </div>
+          <div className="mt-5 grid gap-4 lg:grid-cols-2">
+            {finalResults.map((result) => {
+              const progress = result.maxScore
+                ? Math.round((result.score / result.maxScore) * 100)
+                : 0;
+              const courseLocked = result.courseProgress < 100;
+              const status = courseLocked
+                ? "Алдымен курсты аяқтаңыз"
+                : result.pending
+                  ? "Мұғалімнің тексеруін күтеді"
+                  : result.answered === 0
+                    ? "Әлі басталмаған"
+                    : result.passed
+                      ? "Өтті"
+                      : result.answered < result.taskCount
+                        ? "Орындалуда"
+                        : "Өтпеді";
+              const statusClass = result.pending
+                ? "text-amber-800"
+                : result.passed
+                  ? "text-emerald-800"
+                  : "text-slate-600";
+              return (
+                <article
+                  key={result.courseId}
+                  className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="truncate font-bold text-slate-950">
+                        {result.courseTitle}
+                      </p>
+                      <p className={`mt-1 text-xs font-bold ${statusClass}`}>
+                        {status}
+                      </p>
+                    </div>
+                    <b className="shrink-0 text-2xl tabular-nums text-slate-950">
+                      {result.score}/{result.maxScore || 10}
+                    </b>
+                  </div>
+                  <div
+                    className="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-200"
+                    role="progressbar"
+                    aria-label={`${result.courseTitle} қорытынды бағалау нәтижесі`}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-valuenow={progress}
+                  >
+                    <div
+                      className={`h-full rounded-full ${result.passed ? "bg-emerald-600" : "bg-[#b9e900]"}`}
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
+                    <span className="text-xs font-semibold text-slate-500">
+                      Өту балы: {result.passScore}/{result.maxScore || 10}
+                    </span>
+                    <Link
+                      href={courseLocked ? `/courses/${result.courseSlug}` : `/courses/${result.courseSlug}/final`}
+                      className="inline-flex min-h-10 items-center gap-2 rounded-xl border-2 border-black bg-[#dfff3f] px-3 text-xs font-black text-black transition hover:-translate-y-0.5 hover:bg-[#d4f52f] active:translate-y-0 active:scale-[.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#dfff3f]/60"
+                    >
+                      {courseLocked ? "Курсты жалғастыру" : "Қорытынды жұмысты ашу"}
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      )}
       <section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-5 sm:p-6">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
@@ -589,40 +678,6 @@ export default async function ProfilePage() {
           </div>
         )}
       </section>
-      {finalResults.length > 0 && (
-        <section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-5 sm:p-6">
-          <h2 className="text-xl font-bold text-slate-950">
-            Қорытынды бағалау
-          </h2>
-          <div className="mt-4 space-y-3">
-            {finalResults.map((result) => (
-              <Link
-                key={result.courseId}
-                href={`/courses/${result.courseSlug}/final`}
-                className="flex min-h-16 items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:border-slate-400"
-              >
-                <div className="min-w-0">
-                  <p className="truncate font-bold text-slate-950">
-                    {result.courseTitle}
-                  </p>
-                  <p className={`mt-1 text-xs font-bold ${result.pending ? "text-amber-700" : result.passed ? "text-emerald-700" : "text-slate-600"}`}>
-                    {result.pending
-                      ? "Мұғалімнің тексеруін күтеді"
-                      : result.passed
-                        ? "Курс сәтті аяқталды"
-                        : result.answered
-                          ? "Қайта орындауға болады"
-                          : "Әлі орындалмаған"}
-                  </p>
-                </div>
-                <b className="shrink-0 text-xl tabular-nums text-slate-950">
-                  {result.score}/{result.maxScore || 10}
-                </b>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
     </main>
   );
 }

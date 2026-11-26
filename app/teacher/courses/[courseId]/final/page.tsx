@@ -31,6 +31,8 @@ export default async function FinalAssessmentEditorPage({
     .where(eq(assignments.lessonId, assessment.id))
     .orderBy(asc(assignments.position));
   const totalScore = tasks.reduce((sum, task) => sum + task.maxScore, 0);
+  const scoreDifference = 10 - totalScore;
+  const scoreReady = totalScore === 10;
 
   return (
     <main className="container min-h-screen pb-24 pt-32">
@@ -48,8 +50,29 @@ export default async function FinalAssessmentEditorPage({
           </h1>
           <p className="mt-3 text-sm text-slate-600">{course.title}</p>
         </div>
-        <div className={`rounded-xl border px-4 py-2 text-sm font-black ${totalScore === 10 ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-800"}`}>
-          Жалпы балл: {totalScore}/10
+        <div className={`min-w-56 rounded-xl border px-4 py-3 ${scoreReady ? "border-emerald-300 bg-emerald-50 text-emerald-900" : totalScore < 10 ? "border-amber-300 bg-amber-50 text-amber-900" : "border-rose-300 bg-rose-50 text-rose-900"}`} role="status">
+          <div className="flex items-center justify-between gap-4 text-sm font-black">
+            <span>Жалпы балл</span>
+            <span className="tabular-nums">{totalScore}/10</span>
+          </div>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-black/10">
+            <div
+              className={`h-full rounded-full ${scoreReady ? "bg-emerald-600" : totalScore < 10 ? "bg-amber-500" : "bg-rose-600"}`}
+              style={{ width: `${Math.min(100, Math.max(0, totalScore * 10))}%` }}
+            />
+          </div>
+          <p className="mt-2 text-xs font-bold">
+            {scoreReady
+              ? "Дайын: 10/10 балл"
+              : scoreDifference > 0
+                ? `Тағы ${scoreDifference} балл қосу қажет`
+                : `Жалпы балл ${Math.abs(scoreDifference)} баллға артық`}
+          </p>
+          {!scoreReady && (
+            <p className="mt-1 text-xs font-medium opacity-80">
+              Есепке тек сақталған тапсырмалар кіреді.
+            </p>
+          )}
         </div>
       </div>
       <form
@@ -85,17 +108,27 @@ export default async function FinalAssessmentEditorPage({
             defaultValue={assessment.passScore}
             className="mt-2 h-11 w-full rounded-xl border border-slate-300 px-3 text-sm"
           />
+          <span className="mt-2 block text-xs font-medium leading-5 text-slate-500">
+            Барлық тапсырманың жалпы балы 10 болуы керек.
+          </span>
         </label>
         <div className="space-y-4">
-          <label className="flex min-h-11 items-center gap-3 rounded-xl bg-slate-50 px-4 text-sm font-bold text-slate-800">
+          <label className={`flex min-h-11 items-center gap-3 rounded-xl px-4 text-sm font-bold ${scoreReady ? "bg-slate-50 text-slate-800" : "cursor-not-allowed bg-slate-100 text-slate-400"}`}>
             <input
               name="isPublished"
               type="checkbox"
               defaultChecked={assessment.isPublished}
+              disabled={!scoreReady}
               className="h-4 w-4 accent-black"
             />
             Оқушыға жариялау
           </label>
+          {!scoreReady && (
+            <p className="text-xs font-semibold leading-5 text-amber-800">
+              Жариялау үшін алдымен тапсырмаларды сақтап, жалпы балды 10/10
+              етіңіз.
+            </p>
+          )}
           <ActionSubmitButton
             label="Баптауды сақтау"
             pendingLabel="Сақталуда..."
