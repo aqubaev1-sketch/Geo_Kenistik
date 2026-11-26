@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { and, count, desc, eq, inArray } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
 import {
   ArrowRight,
   BarChart3,
@@ -35,7 +35,7 @@ export default async function ProfilePage() {
   const { session, role } = await requireRole(["student", "teacher", "admin"]);
   const isStudent = role === "student";
   if (!isStudent) {
-    const courseRows = await db
+    const courseRowsQuery = db
       .select({
         id: courses.id,
         title: courses.title,
@@ -49,32 +49,33 @@ export default async function ProfilePage() {
       .leftJoin(mediaAssets, eq(courses.coverMediaId, mediaAssets.id))
       .where(eq(courses.teacherId, session.user.id))
       .orderBy(desc(courses.updatedAt));
-    const courseIds = courseRows.map((item) => item.id);
-    const enrollmentRows = courseIds.length
-      ? await db
-          .select({
-            courseId: enrollments.courseId,
-            studentId: enrollments.studentId,
-            progress: enrollments.progressPercent,
-          })
-          .from(enrollments)
-          .where(inArray(enrollments.courseId, courseIds))
-      : [];
-    const pendingRows = courseIds.length
-      ? await db
-          .select({ id: submissions.id, courseId: courses.id })
-          .from(submissions)
-          .innerJoin(assignments, eq(submissions.assignmentId, assignments.id))
-          .innerJoin(lessons, eq(assignments.lessonId, lessons.id))
-          .innerJoin(courseSections, eq(lessons.sectionId, courseSections.id))
-          .innerJoin(courses, eq(courseSections.courseId, courses.id))
-          .where(
-            and(
-              inArray(courses.id, courseIds),
-              eq(submissions.status, "submitted"),
-            ),
-          )
-      : [];
+    const enrollmentRowsQuery = db
+      .select({
+        courseId: enrollments.courseId,
+        studentId: enrollments.studentId,
+        progress: enrollments.progressPercent,
+      })
+      .from(enrollments)
+      .innerJoin(courses, eq(enrollments.courseId, courses.id))
+      .where(eq(courses.teacherId, session.user.id));
+    const pendingRowsQuery = db
+      .select({ id: submissions.id, courseId: courses.id })
+      .from(submissions)
+      .innerJoin(assignments, eq(submissions.assignmentId, assignments.id))
+      .innerJoin(lessons, eq(assignments.lessonId, lessons.id))
+      .innerJoin(courseSections, eq(lessons.sectionId, courseSections.id))
+      .innerJoin(courses, eq(courseSections.courseId, courses.id))
+      .where(
+        and(
+          eq(courses.teacherId, session.user.id),
+          eq(submissions.status, "submitted"),
+        ),
+      );
+    const [courseRows, enrollmentRows, pendingRows] = await Promise.all([
+      courseRowsQuery,
+      enrollmentRowsQuery,
+      pendingRowsQuery,
+    ]);
     const metrics = new Map(
       courseRows.map((course) => {
         const enrolled = enrollmentRows.filter(
@@ -271,7 +272,7 @@ export default async function ProfilePage() {
       </main>
     );
   }
-  const rows = await db
+  const rowsQuery = db
     .select({
       id: enrollments.id,
       courseId: courses.id,
@@ -287,7 +288,7 @@ export default async function ProfilePage() {
     .leftJoin(mediaAssets, eq(courses.coverMediaId, mediaAssets.id))
     .where(eq(enrollments.studentId, session.user.id))
     .orderBy(desc(enrollments.lastActiveAt));
-  const [completedLessons] = await db
+  const completedLessonsQuery = db
     .select({ value: count() })
     .from(lessonProgress)
     .where(
@@ -296,47 +297,57 @@ export default async function ProfilePage() {
         eq(lessonProgress.status, "completed"),
       ),
     );
-  const courseIds = rows.map((item) => item.courseId);
-  const taskRows = courseIds.length
-    ? await db
-        .select({
-          id: assignments.id,
-          maxScore: assignments.maxScore,
-          lessonId: lessons.id,
-          lessonTitle: lessons.title,
-          isFinalAssessment: lessons.isFinalAssessment,
-          isPublished: lessons.isPublished,
-          passScore: lessons.passScore,
-          courseId: courses.id,
-          courseTitle: courses.title,
-          courseSlug: courses.slug,
-        })
-        .from(assignments)
-        .innerJoin(lessons, eq(assignments.lessonId, lessons.id))
-        .innerJoin(courseSections, eq(lessons.sectionId, courseSections.id))
-        .innerJoin(courses, eq(courseSections.courseId, courses.id))
-        .where(inArray(courses.id, courseIds))
-    : [];
-  const attempts = taskRows.length
-    ? await db
-        .select({
-          assignmentId: submissions.assignmentId,
-          status: submissions.status,
-          score: submissions.score,
-          submittedAt: submissions.submittedAt,
-        })
-        .from(submissions)
-        .where(
-          and(
-            eq(submissions.studentId, session.user.id),
-            inArray(
-              submissions.assignmentId,
-              taskRows.map((item) => item.id),
-            ),
-          ),
-        )
-        .orderBy(desc(submissions.submittedAt))
-    : [];
+  const taskRowsQuery = db
+    .select({
+      id: assignments.id,
+      maxScore: assignments.maxScore,
+      lessonId: lessons.id,
+      lessonTitle: lessons.title,
+      isFinalAssessment: lessons.isFinalAssessment,
+      isPublished: lessons.isPublished,
+      passScore: lessons.passScore,
+      courseId: courses.id,
+      courseTitle: courses.title,
+      courseSlug: courses.slug,
+    })
+    .from(assignments)
+    .innerJoin(lessons, eq(assignments.lessonId, lessons.id))
+    .innerJoin(courseSections, eq(lessons.sectionId, courseSections.id))
+    .innerJoin(courses, eq(courseSections.courseId, courses.id))
+    .innerJoin(
+      enrollments,
+      and(
+        eq(enrollments.courseId, courses.id),
+        eq(enrollments.studentId, session.user.id),
+      ),
+    );
+  const attemptsQuery = db
+    .select({
+      assignmentId: submissions.assignmentId,
+      status: submissions.status,
+      score: submissions.score,
+      submittedAt: submissions.submittedAt,
+    })
+    .from(submissions)
+    .innerJoin(assignments, eq(submissions.assignmentId, assignments.id))
+    .innerJoin(lessons, eq(assignments.lessonId, lessons.id))
+    .innerJoin(courseSections, eq(lessons.sectionId, courseSections.id))
+    .innerJoin(courses, eq(courseSections.courseId, courses.id))
+    .innerJoin(
+      enrollments,
+      and(
+        eq(enrollments.courseId, courses.id),
+        eq(enrollments.studentId, session.user.id),
+      ),
+    )
+    .where(eq(submissions.studentId, session.user.id))
+    .orderBy(desc(submissions.submittedAt));
+  const [rows, [completedLessons], taskRows, attempts] = await Promise.all([
+    rowsQuery,
+    completedLessonsQuery,
+    taskRowsQuery,
+    attemptsQuery,
+  ]);
   const latestAttempts = new Map<string, (typeof attempts)[number]>();
   for (const item of attempts)
     if (!latestAttempts.has(item.assignmentId))
@@ -663,10 +674,16 @@ export default async function ProfilePage() {
                       Өту балы: {result.passScore}/{result.maxScore || 10}
                     </span>
                     <Link
-                      href={courseLocked ? `/courses/${result.courseSlug}` : `/courses/${result.courseSlug}/final`}
+                      href={
+                        courseLocked
+                          ? `/courses/${result.courseSlug}`
+                          : `/courses/${result.courseSlug}/final`
+                      }
                       className="inline-flex min-h-10 items-center gap-2 rounded-xl border-2 border-black bg-[#dfff3f] px-3 text-xs font-black text-black transition hover:-translate-y-0.5 hover:bg-[#d4f52f] active:translate-y-0 active:scale-[.98] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#dfff3f]/60"
                     >
-                      {courseLocked ? "Курсты жалғастыру" : "Қорытынды жұмысты ашу"}
+                      {courseLocked
+                        ? "Курсты жалғастыру"
+                        : "Қорытынды жұмысты ашу"}
                       <ArrowRight className="h-4 w-4" />
                     </Link>
                   </div>

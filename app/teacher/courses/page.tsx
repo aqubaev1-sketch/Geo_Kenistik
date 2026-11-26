@@ -35,7 +35,7 @@ export default async function TeacherCoursesPage() {
         title="Менің курстарым"
         description="Курс, бөлім және сабақтарды бір жерден құрыңыз және жариялаңыз."
       />
-      <section className="mb-8 rounded-[24px] border border-indigo-100 bg-indigo-50/60 p-6 sm:p-8">
+      <section className="mb-8 rounded-[24px] border border-indigo-100 bg-indigo-50/60 p-4 sm:p-8">
         <div className="grid gap-6 lg:grid-cols-[.8fr_1.2fr]">
           <div>
             <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white text-indigo-600 shadow-sm">
@@ -70,14 +70,14 @@ export default async function TeacherCoursesPage() {
               label="Курс құру"
               pendingLabel="Курс құрылуда..."
               successLabel="Курс құрылды"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border-2 border-black bg-[#dfff3f] px-5 text-sm font-black text-black shadow-[3px_4px_0_#000] transition hover:-translate-y-0.5 hover:bg-[#d4f52f] hover:shadow-[5px_6px_0_#000] active:translate-y-0 active:scale-[.98] active:shadow-none"
+              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl border-2 border-black bg-[#dfff3f] px-5 text-sm font-black text-black shadow-[3px_4px_0_#000] transition hover:-translate-y-0.5 hover:bg-[#d4f52f] hover:shadow-[5px_6px_0_#000] active:translate-y-0 active:scale-[.98] active:shadow-none sm:w-auto"
             />
           </form>
         </div>
       </section>
       <div className="grid gap-4 md:grid-cols-2">
         {rows.length === 0 ? (
-          <div className="col-span-full rounded-[24px] border border-dashed border-slate-200 p-12 text-center text-sm text-slate-500">
+          <div className="col-span-full rounded-[24px] border border-dashed border-slate-200 p-8 text-center text-sm text-slate-500 sm:p-12">
             Әзірге курс жоқ. Жоғарыдағы нысан арқылы алғашқы курсты құрыңыз.
           </div>
         ) : (
@@ -87,7 +87,7 @@ export default async function TeacherCoursesPage() {
               className="overflow-hidden rounded-[24px] border border-slate-200 bg-white"
             >
               <CourseCover url={course.coverUrl} className="aspect-[16/7]" />
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <div className="flex items-center justify-between">
                   <span className="grid h-11 w-11 place-items-center rounded-2xl bg-indigo-50 text-indigo-600">
                     <BookOpen className="h-5 w-5" />
@@ -104,7 +104,7 @@ export default async function TeacherCoursesPage() {
                 </p>
                 <Link
                   href={`/teacher/courses/${course.id}`}
-                  className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-indigo-600"
+                  className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-indigo-600"
                 >
                   Редакторды ашу <ArrowRight className="h-4 w-4" />
                 </Link>

@@ -73,7 +73,7 @@ export default async function CourseEditorPage({
               10-сынып · қазақ тілінде
             </span>
           </div>
-          <h1 className="mt-4 break-words text-4xl font-bold tracking-[-.04em]">
+          <h1 className="mt-4 break-words text-3xl font-bold tracking-[-.04em] sm:text-4xl">
             {course.title}
           </h1>
         </div>
@@ -110,7 +110,7 @@ export default async function CourseEditorPage({
         isPublished={course.status === "published"}
       />
       <div className="grid gap-7 lg:grid-cols-[340px_1fr]">
-        <aside className="h-fit rounded-[24px] border border-slate-200 bg-white p-6">
+        <aside className="h-fit rounded-[24px] border border-slate-200 bg-white p-4 sm:p-6">
           <h2 className="text-lg font-bold">Курс туралы</h2>
           <CourseDetailsForm
             action={updateCourse.bind(null, courseId)}

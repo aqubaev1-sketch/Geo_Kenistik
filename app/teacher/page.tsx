@@ -1,17 +1,136 @@
-import Link from 'next/link';
-import { and, count, eq } from 'drizzle-orm';
-import { BarChart3, BookOpen, ClipboardCheck, Clock3, Plus, Users } from 'lucide-react';
-import { requireRole } from '@/lib/authorization';
-import { PageIntro } from '@/components/platform/PageIntro';
-import { db } from '@/db/drizzle';
-import { assignments, courseSections, courses, enrollments, lessons, submissions } from '@/db/schema';
+import Link from "next/link";
+import { and, count, eq } from "drizzle-orm";
+import {
+  BarChart3,
+  BookOpen,
+  ClipboardCheck,
+  Clock3,
+  Plus,
+  Users,
+} from "lucide-react";
+import { requireRole } from "@/lib/authorization";
+import { PageIntro } from "@/components/platform/PageIntro";
+import { db } from "@/db/drizzle";
+import {
+  assignments,
+  courseSections,
+  courses,
+  enrollments,
+  lessons,
+  submissions,
+} from "@/db/schema";
 
-export default async function TeacherPage(){
-  const {session,role}=await requireRole(['teacher', 'admin']);const own=role==='admin'?undefined:eq(courses.teacherId,session.user.id);
-  const [courseCount]=await db.select({value:count()}).from(courses).where(own);
-  const [studentCount]=await db.select({value:count()}).from(enrollments).innerJoin(courses,eq(enrollments.courseId,courses.id)).where(own);
-  const pendingCondition=role==='admin'?eq(submissions.status,'submitted'):and(eq(submissions.status,'submitted'),eq(courses.teacherId,session.user.id));
-  const [pendingCount]=await db.select({value:count()}).from(submissions).innerJoin(assignments,eq(submissions.assignmentId,assignments.id)).innerJoin(lessons,eq(assignments.lessonId,lessons.id)).innerJoin(courseSections,eq(lessons.sectionId,courseSections.id)).innerJoin(courses,eq(courseSections.courseId,courses.id)).where(pendingCondition);
-  const stats=[[BookOpen,String(courseCount.value),'Курс'],[Users,String(studentCount.value),'Оқушы'],[Clock3,String(pendingCount.value),'Тексеруді күтеді']] as const;
-  return <main className="container min-h-screen pb-24 pt-32"><PageIntro eyebrow="Мұғалім кеңістігі" title="Мұғалім дашборды" description="Курстарды басқарыңыз және оқушылардың оқу белсенділігін бақылаңыз." action={<div className="flex min-w-0 flex-wrap gap-2"><Link href="/teacher/statistics" className="inline-flex h-12 items-center gap-2 rounded-[14px] border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 transition hover:-translate-y-0.5 hover:border-black hover:shadow-[3px_4px_0_#000] active:translate-y-0 active:scale-[.98] active:shadow-none"><BarChart3 className="h-4 w-4 text-indigo-500"/>Статистика</Link><Link href="/teacher/reviews" className="inline-flex h-12 items-center gap-2 rounded-[14px] border border-indigo-200 bg-white px-5 text-sm font-bold text-indigo-600 transition hover:-translate-y-0.5 hover:border-black hover:shadow-[3px_4px_0_#000] active:translate-y-0 active:scale-[.98] active:shadow-none"><ClipboardCheck className="h-4 w-4"/>Жұмыстарды тексеру{pendingCount.value>0&&<span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">{pendingCount.value}</span>}</Link><Link href="/teacher/courses" className="inline-flex h-12 items-center gap-2 rounded-[14px] border-2 border-black bg-[#dfff3f] px-5 text-sm font-black text-black shadow-[3px_4px_0_#000] transition hover:-translate-y-0.5 hover:bg-[#d4f52f] hover:shadow-[5px_6px_0_#000] active:translate-y-0 active:scale-[.98] active:shadow-none"><Plus className="h-4 w-4"/>Курс құру</Link></div>}/><div className="grid gap-4 sm:grid-cols-3">{stats.map(([Icon,value,label])=><article key={label} className="rounded-[22px] border border-slate-200 bg-white p-6"><Icon className="h-5 w-5 text-indigo-600"/><b className="mt-6 block text-4xl text-slate-900">{value}</b><span className="text-sm text-slate-500">{label}</span></article>)}</div><section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-6"><div className="flex flex-wrap items-center justify-between gap-4"><div><h2 className="text-xl font-bold">Оқушылар нәтижесі</h2><p className="mt-2 text-sm text-slate-500">Прогресс, сабақтар және тапсырма баллдарын қараңыз.</p></div><div className="flex gap-4"><Link href="/teacher/statistics" className="text-sm font-bold text-indigo-600">Статистиканы ашу</Link><Link href="/teacher/reviews" className="text-sm font-bold text-indigo-600">Кезекті ашу</Link></div></div></section></main>
+export default async function TeacherPage() {
+  const { session, role } = await requireRole(["teacher", "admin"]);
+  const own =
+    role === "admin" ? undefined : eq(courses.teacherId, session.user.id);
+  const courseCountQuery = db
+    .select({ value: count() })
+    .from(courses)
+    .where(own);
+  const studentCountQuery = db
+    .select({ value: count() })
+    .from(enrollments)
+    .innerJoin(courses, eq(enrollments.courseId, courses.id))
+    .where(own);
+  const pendingCondition =
+    role === "admin"
+      ? eq(submissions.status, "submitted")
+      : and(
+          eq(submissions.status, "submitted"),
+          eq(courses.teacherId, session.user.id),
+        );
+  const pendingCountQuery = db
+    .select({ value: count() })
+    .from(submissions)
+    .innerJoin(assignments, eq(submissions.assignmentId, assignments.id))
+    .innerJoin(lessons, eq(assignments.lessonId, lessons.id))
+    .innerJoin(courseSections, eq(lessons.sectionId, courseSections.id))
+    .innerJoin(courses, eq(courseSections.courseId, courses.id))
+    .where(pendingCondition);
+  const [[courseCount], [studentCount], [pendingCount]] = await Promise.all([
+    courseCountQuery,
+    studentCountQuery,
+    pendingCountQuery,
+  ]);
+  const stats = [
+    [BookOpen, String(courseCount.value), "Курс"],
+    [Users, String(studentCount.value), "Оқушы"],
+    [Clock3, String(pendingCount.value), "Тексеруді күтеді"],
+  ] as const;
+  return (
+    <main className="container min-h-screen pb-24 pt-32">
+      <PageIntro
+        eyebrow="Мұғалім кеңістігі"
+        title="Мұғалім дашборды"
+        description="Курстарды басқарыңыз және оқушылардың оқу белсенділігін бақылаңыз."
+        action={
+          <div className="grid w-full min-w-0 gap-2 sm:flex sm:w-auto sm:flex-wrap">
+            <Link
+              href="/teacher/statistics"
+              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-[14px] border border-slate-200 bg-white px-5 text-sm font-bold text-slate-700 transition hover:-translate-y-0.5 hover:border-black hover:shadow-[3px_4px_0_#000] active:translate-y-0 active:scale-[.98] active:shadow-none sm:w-auto"
+            >
+              <BarChart3 className="h-4 w-4 text-indigo-500" />
+              Статистика
+            </Link>
+            <Link
+              href="/teacher/reviews"
+              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-[14px] border border-indigo-200 bg-white px-5 text-sm font-bold text-indigo-600 transition hover:-translate-y-0.5 hover:border-black hover:shadow-[3px_4px_0_#000] active:translate-y-0 active:scale-[.98] active:shadow-none sm:w-auto"
+            >
+              <ClipboardCheck className="h-4 w-4" />
+              Жұмыстарды тексеру
+              {pendingCount.value > 0 && (
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
+                  {pendingCount.value}
+                </span>
+              )}
+            </Link>
+            <Link
+              href="/teacher/courses"
+              className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-[14px] border-2 border-black bg-[#dfff3f] px-5 text-sm font-black text-black shadow-[3px_4px_0_#000] transition hover:-translate-y-0.5 hover:bg-[#d4f52f] hover:shadow-[5px_6px_0_#000] active:translate-y-0 active:scale-[.98] active:shadow-none sm:w-auto"
+            >
+              <Plus className="h-4 w-4" />
+              Курс құру
+            </Link>
+          </div>
+        }
+      />
+      <div className="grid gap-4 sm:grid-cols-3">
+        {stats.map(([Icon, value, label]) => (
+          <article
+            key={label}
+            className="rounded-[22px] border border-slate-200 bg-white p-6"
+          >
+            <Icon className="h-5 w-5 text-indigo-600" />
+            <b className="mt-6 block text-4xl text-slate-900">{value}</b>
+            <span className="text-sm text-slate-500">{label}</span>
+          </article>
+        ))}
+      </div>
+      <section className="mt-6 rounded-[24px] border border-slate-200 bg-white p-4 sm:p-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold">Оқушылар нәтижесі</h2>
+            <p className="mt-2 text-sm text-slate-500">
+              Прогресс, сабақтар және тапсырма баллдарын қараңыз.
+            </p>
+          </div>
+          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4">
+            <Link
+              href="/teacher/statistics"
+              className="inline-flex min-h-11 items-center text-sm font-bold text-indigo-600"
+            >
+              Статистиканы ашу
+            </Link>
+            <Link
+              href="/teacher/reviews"
+              className="inline-flex min-h-11 items-center text-sm font-bold text-indigo-600"
+            >
+              Кезекті ашу
+            </Link>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
 }

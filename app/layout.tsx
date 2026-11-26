@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 // import { Geist, Geist_Mono } from "next/font/google";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -32,6 +32,14 @@ export const metadata: Metadata = {
   title: "GeoKenistik",
   description:
     "Математика курстары мен интерактивті геометрияға арналған оқу платформасы",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  interactiveWidget: "resizes-content",
+  themeColor: "#f6f0dd",
 };
 
 export default function RootLayout({

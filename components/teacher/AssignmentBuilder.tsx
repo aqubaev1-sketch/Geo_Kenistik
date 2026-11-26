@@ -170,7 +170,7 @@ function AssignmentCard({
             <button
               disabled={index === 0}
               aria-label="Жоғары"
-              className="rounded-lg p-2 text-slate-400 hover:bg-slate-50 disabled:opacity-20"
+              className="grid min-h-11 min-w-11 place-items-center rounded-lg p-2 text-slate-400 hover:bg-slate-50 disabled:opacity-20"
             >
               <ArrowUp className="h-4 w-4" />
             </button>
@@ -181,7 +181,7 @@ function AssignmentCard({
             <button
               disabled={index === total - 1}
               aria-label="Төмен"
-              className="rounded-lg p-2 text-slate-400 hover:bg-slate-50 disabled:opacity-20"
+              className="grid min-h-11 min-w-11 place-items-center rounded-lg p-2 text-slate-400 hover:bg-slate-50 disabled:opacity-20"
             >
               <ArrowDown className="h-4 w-4" />
             </button>
@@ -190,7 +190,7 @@ function AssignmentCard({
             <input type="hidden" name="assignmentId" value={row.id} />
             <button
               aria-label="Жою"
-              className="rounded-lg p-2 text-rose-400 hover:bg-rose-50"
+              className="grid min-h-11 min-w-11 place-items-center rounded-lg p-2 text-rose-400 hover:bg-rose-50"
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -270,7 +270,7 @@ function AssignmentCard({
               <button
                 type="button"
                 onClick={addOption}
-                className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600"
+                className="inline-flex min-h-11 items-center gap-1 text-xs font-bold text-indigo-600"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Нұсқа қосу
@@ -292,13 +292,13 @@ function AssignmentCard({
                   <input
                     value={option.text}
                     onChange={(e) => updateOption(option.id, e.target.value)}
-                    className="h-10 min-w-0 flex-1 rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-indigo-400"
+                    className="h-11 min-w-0 flex-1 rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-indigo-400"
                   />
                   <button
                     type="button"
                     onClick={() => removeOption(option.id)}
                     aria-label="Нұсқаны жою"
-                    className="p-2 text-slate-300 hover:text-rose-400"
+                    className="grid min-h-11 min-w-11 place-items-center p-2 text-slate-300 hover:text-rose-400"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -419,7 +419,7 @@ export function AssignmentBuilder({
           <form key={kind} action={createAction}>
             <input type="hidden" name="lessonId" value={lessonId} />
             <input type="hidden" name="kind" value={kind} />
-            <button className="inline-flex h-10 items-center gap-2 rounded-xl border border-white bg-white px-3 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-indigo-300 hover:text-indigo-600">
+            <button className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white bg-white px-3 text-sm font-semibold text-slate-600 shadow-sm transition hover:border-indigo-300 hover:text-indigo-600">
               <Icon className="h-4 w-4" />
               {label}
             </button>

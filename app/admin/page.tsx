@@ -1,5 +1,11 @@
 import { desc, eq } from "drizzle-orm";
-import { BookOpen, ShieldCheck, UserCheck, Users } from "lucide-react";
+import {
+  BookOpen,
+  ChevronDown,
+  ShieldCheck,
+  UserCheck,
+  Users,
+} from "lucide-react";
 import { db } from "@/db/drizzle";
 import { courses, user } from "@/db/schema";
 import { requireRole } from "@/lib/authorization";
@@ -26,8 +32,8 @@ const statusLabel = {
 
 export default async function AdminPage() {
   const { session: current } = await requireRole(["admin"]);
-  const users = await db.select().from(user).orderBy(desc(user.createdAt));
-  const courseRows = await db
+  const usersQuery = db.select().from(user).orderBy(desc(user.createdAt));
+  const courseRowsQuery = db
     .select({
       id: courses.id,
       title: courses.title,
@@ -39,6 +45,7 @@ export default async function AdminPage() {
     .from(courses)
     .leftJoin(user, eq(courses.teacherId, user.id))
     .orderBy(desc(courses.updatedAt));
+  const [users, courseRows] = await Promise.all([usersQuery, courseRowsQuery]);
   const pending = users.filter((item) => item.teacherStatus === "pending");
   return (
     <main className="container min-h-screen pb-24 pt-32">
@@ -57,7 +64,7 @@ export default async function AdminPage() {
         <Stat icon={<BookOpen />} value={courseRows.length} label="Курс" />
       </div>
 
-      <section className="mb-8 rounded-[24px] border border-slate-200 bg-white p-6">
+      <section className="mb-8 rounded-[24px] border border-slate-200 bg-white p-4 sm:p-6">
         <div className="flex items-center gap-3">
           <span className="grid h-10 w-10 place-items-center rounded-xl bg-amber-50 text-amber-600">
             <UserCheck className="h-5 w-5" />
@@ -84,10 +91,20 @@ export default async function AdminPage() {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <form action={approveTeacher.bind(null, item.id)}>
-                    <ActionSubmitButton label="Растау" pendingLabel="Расталуда..." successLabel="Расталды" className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white hover:bg-emerald-700" />
+                    <ActionSubmitButton
+                      label="Растау"
+                      pendingLabel="Расталуда..."
+                      successLabel="Расталды"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white hover:bg-emerald-700"
+                    />
                   </form>
                   <form action={rejectTeacher.bind(null, item.id)}>
-                    <ActionSubmitButton label="Қабылдамау" pendingLabel="Өңделуде..." successLabel="Қабылданбады" className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border-2 border-black bg-white px-4 text-sm font-bold text-black hover:bg-slate-100" />
+                    <ActionSubmitButton
+                      label="Қабылдамау"
+                      pendingLabel="Өңделуде..."
+                      successLabel="Қабылданбады"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border-2 border-black bg-white px-4 text-sm font-bold text-black hover:bg-slate-100"
+                    />
                   </form>
                 </div>
               </div>
@@ -96,137 +113,228 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      <section className="mb-8 rounded-[24px] border border-slate-200 bg-white p-6">
-        <div className="flex items-center gap-3">
+      <details className="group mb-8 rounded-[24px] border border-slate-200 bg-white">
+        <summary className="flex min-h-20 cursor-pointer list-none items-center gap-3 rounded-[24px] p-4 outline-none transition hover:bg-slate-50 focus-visible:ring-4 focus-visible:ring-indigo-100 sm:p-6 [&::-webkit-details-marker]:hidden">
           <span className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-50 text-indigo-600">
             <Users className="h-5 w-5" />
           </span>
-          <div>
+          <div className="min-w-0 flex-1">
             <h2 className="text-xl font-bold">Пайдаланушылар</h2>
             <p className="text-sm text-slate-500">
               Рөл мен қолжетімділікті басқару
             </p>
           </div>
-        </div>
-        <div className="mt-6 overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 text-xs uppercase tracking-wider text-slate-400">
-                <th className="pb-3">Пайдаланушы</th>
-                <th className="pb-3">Рөл</th>
-                <th className="pb-3">Күйі</th>
-                <th className="pb-3 text-right">Әрекет</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((item) => (
-                <tr
-                  key={item.id}
-                  className="border-b border-slate-100 last:border-0"
+          <span className="shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-bold tabular-nums text-slate-600">
+            {users.length}
+          </span>
+          <ChevronDown className="h-5 w-5 shrink-0 text-slate-500 transition-transform duration-200 group-open:rotate-180" />
+        </summary>
+        <div className="border-t border-slate-100 px-4 pb-4 sm:px-6 sm:pb-6">
+          <div className="mt-6 space-y-3 md:hidden">
+            {users.map((item) => (
+              <article
+                key={item.id}
+                className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+              >
+                <div className="flex min-w-0 items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <b className="block truncate text-slate-950">{item.name}</b>
+                    <p className="mt-1 break-all text-sm text-slate-600">
+                      {item.email}
+                    </p>
+                  </div>
+                  <span
+                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${item.banned ? "bg-rose-50 text-rose-700" : "bg-emerald-50 text-emerald-700"}`}
+                  >
+                    {item.banned ? "Бұғатталған" : "Белсенді"}
+                  </span>
+                </div>
+                <form
+                  action={changeUserRole}
+                  className="mt-4 grid grid-cols-[1fr_auto] gap-2"
                 >
-                  <td className="py-4">
-                    <b>{item.name}</b>
-                    <p className="mt-1 text-xs text-slate-500">{item.email}</p>
-                  </td>
-                  <td className="py-4">
-                    <form action={changeUserRole} className="flex flex-wrap gap-2">
-                      <input type="hidden" name="userId" value={item.id} />
-                      <select
-                        name="role"
-                        defaultValue={item.role}
-                        disabled={item.id === current.user.id}
-                        className="h-9 rounded-lg border border-slate-200 bg-white px-2"
-                      >
-                        <option value="student">Оқушы</option>
-                        <option value="teacher">Мұғалім</option>
-                        <option value="admin">Админ</option>
-                      </select>
-                      {item.id !== current.user.id && (
-                        <ActionSubmitButton label="Сақтау" className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-slate-900 px-3 text-xs font-bold text-white hover:bg-black" />
-                      )}
-                    </form>
-                  </td>
-                  <td className="py-4">
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-bold ${item.banned ? "bg-rose-50 text-rose-600" : "bg-emerald-50 text-emerald-600"}`}
+                  <input type="hidden" name="userId" value={item.id} />
+                  <select
+                    name="role"
+                    defaultValue={item.role}
+                    disabled={item.id === current.user.id}
+                    aria-label={`${item.name} рөлі`}
+                    className="min-h-11 min-w-0 rounded-xl border border-slate-300 bg-white px-3"
+                  >
+                    <option value="student">Оқушы</option>
+                    <option value="teacher">Мұғалім</option>
+                    <option value="admin">Админ</option>
+                  </select>
+                  {item.id !== current.user.id && (
+                    <ActionSubmitButton
+                      label="Сақтау"
+                      className="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-bold text-white active:scale-[.98]"
+                    />
+                  )}
+                </form>
+                <div className="mt-3 flex justify-end border-t border-slate-200 pt-3">
+                  {item.id === current.user.id ? (
+                    <span className="text-xs text-slate-500">Бұл сіз</span>
+                  ) : (
+                    <form
+                      action={toggleUserBlock.bind(null, item.id, !item.banned)}
                     >
-                      {item.banned ? "Бұғатталған" : "Белсенді"}
-                    </span>
-                  </td>
-                  <td className="py-4 text-right">
-                    {item.id === current.user.id ? (
-                      <span className="text-xs text-slate-400">Бұл сіз</span>
-                    ) : (
-                      <form
-                        action={toggleUserBlock.bind(
-                          null,
-                          item.id,
-                          !item.banned,
-                        )}
-                      >
-                        <ActionSubmitButton
-                          label={item.banned ? "Бұғаттан шығару" : "Бұғаттау"}
-                          pendingLabel="Өңделуде..."
-                          successLabel={item.banned ? "Бұғаттан шығарылды" : "Бұғатталды"}
-                          className={`inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border px-3 text-xs font-bold hover:-translate-y-0.5 ${item.banned ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-rose-200 bg-rose-50 text-rose-700"}`}
-                        />
-                      </form>
-                    )}
-                  </td>
+                      <ActionSubmitButton
+                        label={item.banned ? "Бұғаттан шығару" : "Бұғаттау"}
+                        pendingLabel="Өңделуде..."
+                        successLabel={
+                          item.banned ? "Бұғаттан шығарылды" : "Бұғатталды"
+                        }
+                        className={`inline-flex min-h-11 items-center justify-center rounded-xl border px-4 text-sm font-bold active:scale-[.98] ${item.banned ? "border-emerald-300 bg-emerald-50 text-emerald-800" : "border-rose-300 bg-rose-50 text-rose-800"}`}
+                      />
+                    </form>
+                  )}
+                </div>
+              </article>
+            ))}
+          </div>
+          <div className="mt-6 hidden overflow-x-auto md:block">
+            <table className="w-full min-w-[760px] text-left text-sm">
+              <thead>
+                <tr className="border-b border-slate-100 text-xs uppercase tracking-wider text-slate-400">
+                  <th className="pb-3">Пайдаланушы</th>
+                  <th className="pb-3">Рөл</th>
+                  <th className="pb-3">Күйі</th>
+                  <th className="pb-3 text-right">Әрекет</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {users.map((item) => (
+                  <tr
+                    key={item.id}
+                    className="border-b border-slate-100 last:border-0"
+                  >
+                    <td className="py-4">
+                      <b>{item.name}</b>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {item.email}
+                      </p>
+                    </td>
+                    <td className="py-4">
+                      <form
+                        action={changeUserRole}
+                        className="flex flex-wrap gap-2"
+                      >
+                        <input type="hidden" name="userId" value={item.id} />
+                        <select
+                          name="role"
+                          defaultValue={item.role}
+                          disabled={item.id === current.user.id}
+                          className="h-9 rounded-lg border border-slate-200 bg-white px-2"
+                        >
+                          <option value="student">Оқушы</option>
+                          <option value="teacher">Мұғалім</option>
+                          <option value="admin">Админ</option>
+                        </select>
+                        {item.id !== current.user.id && (
+                          <ActionSubmitButton
+                            label="Сақтау"
+                            className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-slate-900 px-3 text-xs font-bold text-white hover:bg-black"
+                          />
+                        )}
+                      </form>
+                    </td>
+                    <td className="py-4">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-bold ${item.banned ? "bg-rose-50 text-rose-600" : "bg-emerald-50 text-emerald-600"}`}
+                      >
+                        {item.banned ? "Бұғатталған" : "Белсенді"}
+                      </span>
+                    </td>
+                    <td className="py-4 text-right">
+                      {item.id === current.user.id ? (
+                        <span className="text-xs text-slate-400">Бұл сіз</span>
+                      ) : (
+                        <form
+                          action={toggleUserBlock.bind(
+                            null,
+                            item.id,
+                            !item.banned,
+                          )}
+                        >
+                          <ActionSubmitButton
+                            label={item.banned ? "Бұғаттан шығару" : "Бұғаттау"}
+                            pendingLabel="Өңделуде..."
+                            successLabel={
+                              item.banned ? "Бұғаттан шығарылды" : "Бұғатталды"
+                            }
+                            className={`inline-flex min-h-9 items-center justify-center gap-2 rounded-lg border px-3 text-xs font-bold hover:-translate-y-0.5 ${item.banned ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-rose-200 bg-rose-50 text-rose-700"}`}
+                          />
+                        </form>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </section>
+      </details>
 
-      <section className="rounded-[24px] border border-slate-200 bg-white p-6">
-        <div className="flex items-center gap-3">
+      <details className="group rounded-[24px] border border-slate-200 bg-white">
+        <summary className="flex min-h-20 cursor-pointer list-none items-center gap-3 rounded-[24px] p-4 outline-none transition hover:bg-slate-50 focus-visible:ring-4 focus-visible:ring-violet-100 sm:p-6 [&::-webkit-details-marker]:hidden">
           <span className="grid h-10 w-10 place-items-center rounded-xl bg-violet-50 text-violet-600">
             <BookOpen className="h-5 w-5" />
           </span>
-          <div>
+          <div className="min-w-0 flex-1">
             <h2 className="text-xl font-bold">Курстарды басқару</h2>
             <p className="text-sm text-slate-500">
               Барлық мұғалімдердің курстары
             </p>
           </div>
-        </div>
-        <div className="mt-6 space-y-3">
-          {courseRows.length === 0 ? (
-            <Empty text="Курстар әлі құрылмаған." />
-          ) : (
-            courseRows.map((course) => (
-              <div
-                key={course.id}
-                className="flex flex-col gap-4 rounded-2xl border border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div>
-                  <b>{course.title}</b>
-                  <p className="mt-1 text-xs text-slate-500">
-                    {course.grade}-сынып ·{" "}
-                    {course.teacherName ?? "Мұғалім көрсетілмеген"} ·{" "}
-                    {statusLabel[course.status]}
-                  </p>
-                </div>
-                <form action={changeCourseStatus} className="flex flex-wrap gap-2">
-                  <input type="hidden" name="courseId" value={course.id} />
-                  <select
-                    name="status"
-                    defaultValue={course.status}
-                    className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm"
+          <span className="shrink-0 rounded-full bg-slate-100 px-3 py-1 text-xs font-bold tabular-nums text-slate-600">
+            {courseRows.length}
+          </span>
+          <ChevronDown className="h-5 w-5 shrink-0 text-slate-500 transition-transform duration-200 group-open:rotate-180" />
+        </summary>
+        <div className="border-t border-slate-100 px-4 pb-4 sm:px-6 sm:pb-6">
+          <div className="mt-6 space-y-3">
+            {courseRows.length === 0 ? (
+              <Empty text="Курстар әлі құрылмаған." />
+            ) : (
+              courseRows.map((course) => (
+                <div
+                  key={course.id}
+                  className="flex flex-col gap-4 rounded-2xl border border-slate-100 p-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div>
+                    <b>{course.title}</b>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {course.grade}-сынып ·{" "}
+                      {course.teacherName ?? "Мұғалім көрсетілмеген"} ·{" "}
+                      {statusLabel[course.status]}
+                    </p>
+                  </div>
+                  <form
+                    action={changeCourseStatus}
+                    className="flex flex-wrap gap-2"
                   >
-                    <option value="draft">Жоба</option>
-                    <option value="published">Жариялау</option>
-                    <option value="archived">Мұрағат</option>
-                  </select>
-                  <ActionSubmitButton label="Сақтау" className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border-2 border-black bg-[#dfff3f] px-4 text-sm font-black text-black shadow-[2px_3px_0_#000] hover:-translate-y-0.5 hover:bg-[#d4f52f] active:translate-y-0 active:shadow-none" />
-                </form>
-              </div>
-            ))
-          )}
+                    <input type="hidden" name="courseId" value={course.id} />
+                    <select
+                      name="status"
+                      defaultValue={course.status}
+                      className="h-10 rounded-xl border border-slate-200 bg-white px-3 text-sm"
+                    >
+                      <option value="draft">Жоба</option>
+                      <option value="published">Жариялау</option>
+                      <option value="archived">Мұрағат</option>
+                    </select>
+                    <ActionSubmitButton
+                      label="Сақтау"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border-2 border-black bg-[#dfff3f] px-4 text-sm font-black text-black shadow-[2px_3px_0_#000] hover:-translate-y-0.5 hover:bg-[#d4f52f] active:translate-y-0 active:shadow-none"
+                    />
+                  </form>
+                </div>
+              ))
+            )}
+          </div>
         </div>
-      </section>
+      </details>
     </main>
   );
 }
