@@ -32,7 +32,10 @@ const statusLabel = {
 
 export default async function AdminPage() {
   const { session: current } = await requireRole(["admin"]);
-  const usersQuery = db.select().from(user).orderBy(desc(user.createdAt));
+  const usersQuery = db
+    .select()
+    .from(user)
+    .orderBy(desc(user.createdAt), desc(user.id));
   const courseRowsQuery = db
     .select({
       id: courses.id,
@@ -47,6 +50,9 @@ export default async function AdminPage() {
     .orderBy(desc(courses.updatedAt));
   const [users, courseRows] = await Promise.all([usersQuery, courseRowsQuery]);
   const pending = users.filter((item) => item.teacherStatus === "pending");
+  const primaryAdminId = [...users]
+    .reverse()
+    .find((item) => item.role === "admin")?.id;
   return (
     <main className="container min-h-screen pb-24 pt-32">
       <PageIntro
@@ -138,7 +144,16 @@ export default async function AdminPage() {
               >
                 <div className="flex min-w-0 items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <b className="block truncate text-slate-950">{item.name}</b>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <b className="block truncate text-slate-950">
+                        {item.name}
+                      </b>
+                      {item.id === primaryAdminId && (
+                        <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-700">
+                          Негізгі админ
+                        </span>
+                      )}
+                    </div>
                     <p className="mt-1 break-all text-sm text-slate-600">
                       {item.email}
                     </p>
@@ -157,7 +172,9 @@ export default async function AdminPage() {
                   <select
                     name="role"
                     defaultValue={item.role}
-                    disabled={item.id === current.user.id}
+                    disabled={
+                      item.id === current.user.id || item.id === primaryAdminId
+                    }
                     aria-label={`${item.name} рөлі`}
                     className="min-h-11 min-w-0 rounded-xl border border-slate-300 bg-white px-3"
                   >
@@ -165,15 +182,20 @@ export default async function AdminPage() {
                     <option value="teacher">Мұғалім</option>
                     <option value="admin">Админ</option>
                   </select>
-                  {item.id !== current.user.id && (
-                    <ActionSubmitButton
-                      label="Сақтау"
-                      className="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-bold text-white active:scale-[.98]"
-                    />
-                  )}
+                  {item.id !== current.user.id &&
+                    item.id !== primaryAdminId && (
+                      <ActionSubmitButton
+                        label="Сақтау"
+                        className="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-bold text-white active:scale-[.98]"
+                      />
+                    )}
                 </form>
                 <div className="mt-3 flex justify-end border-t border-slate-200 pt-3">
-                  {item.id === current.user.id ? (
+                  {item.id === primaryAdminId ? (
+                    <span className="text-xs font-bold text-indigo-700">
+                      Қорғалған аккаунт
+                    </span>
+                  ) : item.id === current.user.id ? (
                     <span className="text-xs text-slate-500">Бұл сіз</span>
                   ) : (
                     <form
@@ -210,7 +232,14 @@ export default async function AdminPage() {
                     className="border-b border-slate-100 last:border-0"
                   >
                     <td className="py-4">
-                      <b>{item.name}</b>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <b>{item.name}</b>
+                        {item.id === primaryAdminId && (
+                          <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[10px] font-bold text-indigo-700">
+                            Негізгі админ
+                          </span>
+                        )}
+                      </div>
                       <p className="mt-1 text-xs text-slate-500">
                         {item.email}
                       </p>
@@ -224,19 +253,23 @@ export default async function AdminPage() {
                         <select
                           name="role"
                           defaultValue={item.role}
-                          disabled={item.id === current.user.id}
+                          disabled={
+                            item.id === current.user.id ||
+                            item.id === primaryAdminId
+                          }
                           className="h-9 rounded-lg border border-slate-200 bg-white px-2"
                         >
                           <option value="student">Оқушы</option>
                           <option value="teacher">Мұғалім</option>
                           <option value="admin">Админ</option>
                         </select>
-                        {item.id !== current.user.id && (
-                          <ActionSubmitButton
-                            label="Сақтау"
-                            className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-slate-900 px-3 text-xs font-bold text-white hover:bg-black"
-                          />
-                        )}
+                        {item.id !== current.user.id &&
+                          item.id !== primaryAdminId && (
+                            <ActionSubmitButton
+                              label="Сақтау"
+                              className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-slate-900 px-3 text-xs font-bold text-white hover:bg-black"
+                            />
+                          )}
                       </form>
                     </td>
                     <td className="py-4">
@@ -247,7 +280,11 @@ export default async function AdminPage() {
                       </span>
                     </td>
                     <td className="py-4 text-right">
-                      {item.id === current.user.id ? (
+                      {item.id === primaryAdminId ? (
+                        <span className="text-xs font-bold text-indigo-700">
+                          Қорғалған аккаунт
+                        </span>
+                      ) : item.id === current.user.id ? (
                         <span className="text-xs text-slate-400">Бұл сіз</span>
                       ) : (
                         <form
